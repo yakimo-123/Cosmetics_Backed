@@ -9,9 +9,11 @@ import org.cosmetic.com.repository.UserRepository;
 import org.cosmetic.com.security.jwt.JwtUtil;
 import org.cosmetic.com.service.AuthenticationService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 
 @AllArgsConstructor
+@Service
 public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final PasswordEncoder passwordEncoder;
