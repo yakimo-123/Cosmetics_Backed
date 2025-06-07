@@ -5,6 +5,7 @@ import org.cosmetic.com.repository.SupplierRepository;
 import org.cosmetic.com.service.SupplierService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 

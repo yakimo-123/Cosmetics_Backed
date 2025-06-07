@@ -1,7 +1,15 @@
 package org.cosmetic.com.service;
 
-public interface AuthenticationService {
+import org.cosmetic.com.dto.request.LoginRequestDto;
+import org.cosmetic.com.dto.request.RegisterRequestDto;
+import org.cosmetic.com.dto.response.LoginResponseDto;
+import org.springframework.stereotype.Service;
 
-    String authenticate(String username, String password) throws IllegalArgumentException;
-    boolean validateToken(String token);
+
+@Service
+public interface AuthenticationService {
+    LoginResponseDto authenticate(LoginRequestDto request);
+    void logout(LoginResponseDto response);
+    void refreshToken(LoginResponseDto response);
+    void register(RegisterRequestDto request);
 }
