@@ -3,6 +3,9 @@ package org.cosmetic.com.dto.request;
 import lombok.Builder;
 import lombok.Data;
 import org.cosmetic.com.model.Category;
+import org.cosmetic.com.model.ImageUrl;
+
+import java.util.List;
 
 @Data
 @Builder
@@ -12,4 +15,5 @@ public class ProductRequestDto {
     private Double price;
     private Integer quantity;
     private Category category;
+    private List<ImageUrl> imageUrls;
 }

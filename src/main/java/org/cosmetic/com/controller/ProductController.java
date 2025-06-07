@@ -1,10 +1,12 @@
 package org.cosmetic.com.controller;
 
+import lombok.AllArgsConstructor;
 import org.cosmetic.com.dto.request.ProductRequestDto;
 import org.cosmetic.com.dto.response.ApiResponse;
+import org.cosmetic.com.dto.response.ProductResponseDto;
+import org.cosmetic.com.mapper.ProductMapper;
 import org.cosmetic.com.model.Product;
 import org.cosmetic.com.service.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -13,68 +15,77 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/products")
+@AllArgsConstructor
 public class ProductController {
 
-    @Autowired
-    private ProductService productService;
+    private final ProductMapper productMapper;
+    private final ProductService productService;
 
     @GetMapping("/page")
-    public ResponseEntity<ApiResponse<Page<Product>>> getAllProducts(
+    public ResponseEntity<ApiResponse<Page<ProductResponseDto>>> getAllProducts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Product> products = productService.findAll(pageable);
-        ApiResponse<Page<Product>> response = ApiResponse.<Page<Product>>builder()
+        Page<ProductResponseDto> productDtos = products.map(productMapper::toResponseDto);
+        ApiResponse<Page<ProductResponseDto>> response = ApiResponse.<Page<ProductResponseDto>>builder()
                 .status(true)
                 .message("Products retrieved successfully")
-                .data(products)
+                .data(productDtos)
                 .build();
         return ResponseEntity.ok(response);
     }
+
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Product>> getProductById(@PathVariable Long id) {
-        return productService.findById(id)
-                .map(product -> ResponseEntity.ok(ApiResponse.<Product>builder()
-                        .status(true)
-                        .message("Product retrieved successfully")
-                        .data(product)
-                        .build()))
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<ApiResponse<ProductResponseDto>> getProductById(@PathVariable Long id) {
+        Optional<Product> productOpt = productService.findById(id);
+        if (productOpt.isPresent()) {
+            ProductResponseDto dto = productMapper.toResponseDto(productOpt.get());
+            ApiResponse<ProductResponseDto> response = ApiResponse.<ProductResponseDto>builder()
+                    .status(true)
+                    .message("Product retrieved successfully")
+                    .data(dto)
+                    .build();
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
-    @PostMapping
-    public ResponseEntity<ApiResponse<Product>> createProduct(
-            @RequestBody ProductRequestDto productRequestDto,
+
+    @PostMapping(consumes = {"multipart/form-data"})
+    public ResponseEntity<ApiResponse<ProductResponseDto>> createProduct(
+            ProductRequestDto productRequestDto,
             @RequestParam("images") List<MultipartFile> images
     ) {
-        Product savedProduct = productService.save(productRequestDto);
-        ApiResponse<Product> response = ApiResponse.<Product>builder()
+        Product savedProduct = productService.save(productRequestDto, images);
+        ApiResponse<ProductResponseDto> response = ApiResponse.<ProductResponseDto>builder()
                 .status(true)
                 .message("Product created successfully")
-                .data(savedProduct)
+                .data(productMapper.toResponseDto(savedProduct))
                 .build();
         return ResponseEntity.ok(response);
     }
 
-
-    @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<Product>> updateProduct(@PathVariable Long id, @RequestBody Product product) {
-        return productService.findById(id)
-                .map(existingProduct -> {
-                    product.setId(id);
-                    Product updatedProduct = productService.save(product);
-                    ApiResponse<Product> response = ApiResponse.<Product>builder()
-                            .status(true)
-                            .message("Product updated successfully")
-                            .data(updatedProduct)
-                            .build();
-                    return ResponseEntity.ok(response);
-                })
-                .orElse(ResponseEntity.notFound().build());
+    @PutMapping(value = "/{id}", consumes = {"multipart/form-data"})
+    public ResponseEntity<ApiResponse<ProductResponseDto>> updateProduct(
+            @PathVariable Long id,
+            ProductRequestDto productRequestDto,
+            @RequestParam(value = "images", required = false) List<MultipartFile> images
+    ) {
+        Product updatedProduct = productService.update(id, productRequestDto, images);
+        ApiResponse<ProductResponseDto> response = ApiResponse.<ProductResponseDto>builder()
+                .status(true)
+                .message("Product updated successfully")
+                .data(productMapper.toResponseDto(updatedProduct))
+                .build();
+        return ResponseEntity.ok(response);
     }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<String>> deleteProduct(@PathVariable Long id) {
         if (productService.findById(id).isPresent()) {
@@ -89,5 +100,4 @@ public class ProductController {
             return ResponseEntity.notFound().build();
         }
     }
-
 }

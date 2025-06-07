@@ -1,17 +1,17 @@
 package org.cosmetic.com.service.impl;
 
+import lombok.AllArgsConstructor;
 import org.cosmetic.com.model.ImageUrl;
 import org.cosmetic.com.repository.ImageUrlRepository;
 import org.cosmetic.com.service.ImgUrlService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class ImgUrlServiceImpl implements ImgUrlService {
 
-    @Autowired
     private ImageUrlRepository imageUrlRepository;
 
     @Override
