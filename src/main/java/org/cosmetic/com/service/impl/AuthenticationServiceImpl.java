@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.cosmetic.com.dto.request.LoginRequestDto;
 import org.cosmetic.com.dto.request.RegisterRequestDto;
 import org.cosmetic.com.dto.response.LoginResponseDto;
+import org.cosmetic.com.enums.Role;
 import org.cosmetic.com.model.User;
 import org.cosmetic.com.repository.UserRepository;
 import org.cosmetic.com.security.jwt.JwtUtil;
@@ -51,6 +52,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
         User user = new User();
         user.setUsername(request.getUsername());
+        user.setRole(Role.USER);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         userRepository.save(user);
     }
