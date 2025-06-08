@@ -1,5 +1,6 @@
 package org.cosmetic.com.service;
 
+import org.cosmetic.com.dto.request.OrderRequestDto;
 import org.cosmetic.com.model.Order;
 
 import java.util.List;
@@ -10,7 +11,7 @@ public interface OrderService {
 
     Optional<Order> findById(Long id);
 
-    Order save(Order order);
+    Order save(OrderRequestDto orderRequestDto);
 
     void deleteById(Long id);
 }

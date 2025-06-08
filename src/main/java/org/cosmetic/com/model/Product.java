@@ -1,5 +1,6 @@
 package org.cosmetic.com.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -48,6 +49,7 @@ public class Product {
     private Inventory inventory;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<OrderDetail> orderDetails;
 
     @Override

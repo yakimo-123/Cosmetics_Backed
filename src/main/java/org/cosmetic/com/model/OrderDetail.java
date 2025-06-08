@@ -1,5 +1,6 @@
 package org.cosmetic.com.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -34,4 +35,8 @@ public class OrderDetail {
     @NotNull
     @Column(nullable = false)
     private BigDecimal unitPrice;
+
+    @NotNull
+    @Column(nullable = false)
+    private BigDecimal subPrice;
 }
