@@ -1,5 +1,6 @@
 package org.cosmetic.com.service;
 
+import org.cosmetic.com.dto.request.CategoryRequestDto;
 import org.cosmetic.com.model.Category;
 
 import java.util.List;
@@ -10,7 +11,10 @@ public interface CategoryService {
 
     Optional<Category> findById(Long id);
 
-    Category save(Category category);
+    Category save(CategoryRequestDto requestDto);
 
     void deleteById(Long id);
+
+    Category update(Long id,CategoryRequestDto requestDto);
+
 }

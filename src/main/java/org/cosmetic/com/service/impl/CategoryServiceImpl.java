@@ -1,5 +1,8 @@
 package org.cosmetic.com.service.impl;
 
+import lombok.AllArgsConstructor;
+import org.cosmetic.com.dto.request.CategoryRequestDto;
+import org.cosmetic.com.mapper.CategoryMapper;
 import org.cosmetic.com.model.Category;
 import org.cosmetic.com.repository.CategoryRepository;
 import org.cosmetic.com.service.CategoryService;
@@ -10,9 +13,11 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@AllArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
-    @Autowired
-    private CategoryRepository categoryRepository;
+
+    private final CategoryRepository categoryRepository;
+    private final CategoryMapper categoryMapper;
 
     @Override
     public List<Category> findAll() {
@@ -25,12 +30,18 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public Category save(Category category) {
+    public Category save(CategoryRequestDto requestDto) {
+        Category category = categoryMapper.toEntity(requestDto);
         return categoryRepository.save(category);
     }
 
     @Override
     public void deleteById(Long id) {
         categoryRepository.deleteById(id);
+    }
+
+    @Override
+    public Category update(Long id,CategoryRequestDto category) {
+        return null;
     }
 }

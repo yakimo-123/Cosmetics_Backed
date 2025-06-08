@@ -1,0 +1,17 @@
+package org.cosmetic.com.dto.response;
+
+import lombok.Builder;
+import lombok.Data;
+import java.time.LocalDateTime;
+
+@Data
+@Builder
+public class CategoryResponseDto {
+    private Long id;
+    private String categoryName;
+    private String description;
+    private String imageUrl;
+    private Boolean status;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+}

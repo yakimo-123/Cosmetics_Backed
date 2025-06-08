@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -61,7 +62,7 @@ public class ProductController {
     public ResponseEntity<ApiResponse<ProductResponseDto>> createProduct(
             ProductRequestDto productRequestDto,
             @RequestParam("images") List<MultipartFile> images
-    ) {
+    ) throws IOException {
         Product savedProduct = productService.save(productRequestDto, images);
         ApiResponse<ProductResponseDto> response = ApiResponse.<ProductResponseDto>builder()
                 .status(true)
@@ -76,7 +77,7 @@ public class ProductController {
             @PathVariable Long id,
             ProductRequestDto productRequestDto,
             @RequestParam(value = "images", required = false) List<MultipartFile> images
-    ) {
+    ) throws IOException {
         Product updatedProduct = productService.update(id, productRequestDto, images);
         ApiResponse<ProductResponseDto> response = ApiResponse.<ProductResponseDto>builder()
                 .status(true)

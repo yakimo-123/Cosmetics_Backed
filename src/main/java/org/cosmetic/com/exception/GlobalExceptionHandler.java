@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.io.IOException;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -24,6 +26,34 @@ public class GlobalExceptionHandler {
         ApiResponse<Object> response = ApiResponse.<Object>builder()
                 .status(false)
                 .message("Internal server error")
+                .data(null)
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiResponse<Object>> handleIllegalArgumentException(IllegalArgumentException ex) {
+        ApiResponse<Object> response = ApiResponse.<Object>builder()
+                .status(false)
+                .message(ex.getMessage())
+                .data(null)
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(NullPointerException.class)
+    public ResponseEntity<ApiResponse<Object>> handleNullPointerException(NullPointerException ex) {
+        ApiResponse<Object> response = ApiResponse.<Object>builder()
+                .status(false)
+                .message("Null pointer exception occurred")
+                .data(null)
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<ApiResponse<Object>> handleIOException(IOException ex) {
+        ApiResponse<Object> response = ApiResponse.<Object>builder()
+                .status(false)
+                .message("File processing error: " + ex.getMessage())
                 .data(null)
                 .build();
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);

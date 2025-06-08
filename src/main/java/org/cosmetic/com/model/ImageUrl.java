@@ -1,9 +1,16 @@
 package org.cosmetic.com.model;
 
 import jakarta.persistence.*;
+import lombok.*;
 import org.cosmetic.com.enums.ImageType;
 
 @Entity
+@Table(name = "image_urls")
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 public class ImageUrl {
     @Id
     private Long id;

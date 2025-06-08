@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,11 +15,11 @@ public interface ProductService {
 
     Optional<Product> findById(Long id);
 
-    Product save(ProductRequestDto product,List<MultipartFile> images);
+    Product save(ProductRequestDto product,List<MultipartFile> images) throws IOException;
 
     void deleteById(Long id);
 
-    Product update(Long id,ProductRequestDto product,List<MultipartFile> images);
+    Product update(Long id,ProductRequestDto product,List<MultipartFile> images) throws IOException;
 
     Page<Product> findAll(Pageable pageable);
 }
