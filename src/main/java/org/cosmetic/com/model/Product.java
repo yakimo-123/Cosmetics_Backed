@@ -31,9 +31,14 @@ public class Product {
     @Column(nullable = false)
     private BigDecimal price;
 
-    @ManyToOne
-    @JoinColumn(name = "category_id", nullable = false)
-    private Category category;
+
+    @ManyToMany
+    @JoinTable(
+            name = "product_category",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
+    private List<Category> categories;
 
     @ManyToOne
     @JoinColumn(name = "supplier_id", nullable = false)
@@ -45,4 +50,13 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderDetail> orderDetails;
 
+    @Override
+    public String toString() {
+        return "Product{" +
+                "price=" + price +
+                ", description='" + description + '\'' +
+                ", productName='" + productName + '\'' +
+                ", id=" + id +
+                '}';
+    }
 }

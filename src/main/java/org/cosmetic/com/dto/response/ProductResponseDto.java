@@ -7,7 +7,7 @@ import lombok.Data;
 @Builder
 public class ProductResponseDto {
     private Long id;
-    private String name;
+    private String productName;
     private String description;
     private Double price;
     private Integer quantity;

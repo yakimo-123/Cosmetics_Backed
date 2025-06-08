@@ -4,9 +4,14 @@ import lombok.AllArgsConstructor;
 import org.cosmetic.com.dto.request.ProductRequestDto;
 import org.cosmetic.com.enums.ImageType;
 import org.cosmetic.com.mapper.ProductMapper;
+import org.cosmetic.com.model.Category;
 import org.cosmetic.com.model.ImageUrl;
 import org.cosmetic.com.model.Product;
+import org.cosmetic.com.model.Supplier;
+import org.cosmetic.com.repository.CategoryRepository;
 import org.cosmetic.com.repository.ProductRepository;
+import org.cosmetic.com.repository.SupplierRepository;
+import org.cosmetic.com.service.CategoryService;
 import org.cosmetic.com.service.ImgUrlService;
 import org.cosmetic.com.service.ProductService;
 import org.springframework.data.domain.Page;
@@ -25,8 +30,8 @@ public class ProductServiceImpl implements ProductService {
     private ProductRepository productRepository;
     private ProductMapper productMapper;
     private ImgUrlService imgUrlService;
-
-
+    private CategoryRepository categoryRepository;
+    private SupplierRepository supplierRepository;
     @Override
     public List<Product> findAll() {
         return productRepository.findAll();
@@ -40,6 +45,18 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product save(ProductRequestDto productRequestDto, List<MultipartFile> images) throws IOException{
         Product product = productMapper.toEntity(productRequestDto);
+
+        List<Category> categories = categoryRepository.findAllById(productRequestDto.getCategoryIds());
+        if (categories.size() != productRequestDto.getCategoryIds().size()) {
+            throw new IllegalArgumentException("Some categories do not exist");
+        }
+        product.setCategories(categories);
+        // Set supplier
+        Supplier supplier = supplierRepository.findById(productRequestDto.getSupplierId())
+                .orElseThrow(() -> new IllegalArgumentException("Supplier not found."));
+        product.setSupplier(supplier);
+
+
         product = productRepository.save(product);
 
         if (images != null && !images.isEmpty()) {

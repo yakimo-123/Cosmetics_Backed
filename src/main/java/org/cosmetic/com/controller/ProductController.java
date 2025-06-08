@@ -1,5 +1,7 @@
 package org.cosmetic.com.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.cosmetic.com.dto.request.ProductRequestDto;
 import org.cosmetic.com.dto.response.ApiResponse;
@@ -10,6 +12,7 @@ import org.cosmetic.com.service.ProductService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -58,10 +61,10 @@ public class ProductController {
         }
     }
 
-    @PostMapping(consumes = {"multipart/form-data"})
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<ProductResponseDto>> createProduct(
-            ProductRequestDto productRequestDto,
-            @RequestParam("images") List<MultipartFile> images
+            @RequestPart("product") @Valid ProductRequestDto productRequestDto,
+            @RequestPart("images") List<MultipartFile> images
     ) throws IOException {
         Product savedProduct = productService.save(productRequestDto, images);
         ApiResponse<ProductResponseDto> response = ApiResponse.<ProductResponseDto>builder()
@@ -75,7 +78,7 @@ public class ProductController {
     @PutMapping(value = "/{id}", consumes = {"multipart/form-data"})
     public ResponseEntity<ApiResponse<ProductResponseDto>> updateProduct(
             @PathVariable Long id,
-            ProductRequestDto productRequestDto,
+            @Valid ProductRequestDto productRequestDto,
             @RequestParam(value = "images", required = false) List<MultipartFile> images
     ) throws IOException {
         Product updatedProduct = productService.update(id, productRequestDto, images);
@@ -101,4 +104,7 @@ public class ProductController {
             return ResponseEntity.notFound().build();
         }
     }
+
+
+
 }
