@@ -20,7 +20,7 @@ public class ImageUrlController {
 
 
     @GetMapping("/type/{imageType}/{id}")
-    public ResponseEntity<ApiResponse<List<ImageUrl>>> getImagesByType(
+    public ResponseEntity<ApiResponse<List<ImageUrl>>> getImagesByTypeAndId(
             @PathVariable ImageType imageType,
             @PathVariable long id) {
         List<ImageUrl> images = imageUrlService.findByImageTypeAndId(imageType, id);
