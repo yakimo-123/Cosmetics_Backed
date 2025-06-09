@@ -97,15 +97,7 @@ public class OrderServiceImpl implements OrderService {
         return order ;
     }
 
-    private boolean validateInventoryAndReturnListProduct(List<OrderDetailRequestDto>  orderDetailRequestDtoList) {
-        // Check if the product is available in the inventory
-        if (inventoryRepository.existsByProductIdAndQuantityGreaterThanEqual(orderDetail.getProduct().getId(), orderDetail.getQuantity())) {
-            // Update inventory
-            inventoryRepository.decreaseQuantity(orderDetail.getProduct().getId(), orderDetail.getQuantity());
-        } else {
-            throw new IllegalArgumentException("Insufficient inventory for product: " + orderDetail.getProduct().getName());
-        }
-    }
+
 
 
     @Override
