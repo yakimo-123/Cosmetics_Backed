@@ -117,14 +117,5 @@ public class JwtUtil {
         return null;
     }
 
-    public boolean isRefreshToken(String token) {
-        try {
-            SignedJWT signedJWT = SignedJWT.parse(token);
-            Object type = signedJWT.getJWTClaimsSet().getClaim("type");
-            return "refresh".equals(type);
-        } catch (Exception e) {
-            return false;
-        }
-    }
 
 }

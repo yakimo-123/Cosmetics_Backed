@@ -11,10 +11,7 @@ import org.cosmetic.com.dto.response.LoginResponseDto;
 import org.cosmetic.com.security.jwt.JwtUtil;
 import org.cosmetic.com.service.AuthenticationService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -33,6 +30,7 @@ public class AuthController {
         if (loginResponse.getUsername() != null) {
             Cookie cookie = new Cookie("refreshToken", jwtUtil.generateRefreshToken(loginResponse.getUsername()));
             cookie.setHttpOnly(true);
+            // cookie.setSecure(true);  use this if your application is served over HTTPS
             cookie.setPath("/");
             response.addCookie(cookie);
         }
@@ -45,7 +43,13 @@ public class AuthController {
         );
     }
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<String>> logout() {
+    public ResponseEntity<ApiResponse<String>> logout(HttpServletResponse response) {
+        Cookie cookie = new Cookie("refreshToken", null);
+        cookie.setHttpOnly(true);
+       // cookie.setSecure(true);  use this if your application is served over HTTPS
+        cookie.setPath("/");
+        cookie.setMaxAge(0); // Delete cookie
+        response.addCookie(cookie);
         return ResponseEntity.ok(
                 ApiResponse.<String>builder()
                         .status(true)
@@ -54,6 +58,37 @@ public class AuthController {
                         .build()
         );
     }
+
+    public ResponseEntity<ApiResponse<?>> refreshToken(@CookieValue(value = "refreshToken", required = false) String refreshToken) {
+        if (refreshToken == null) {
+            return ResponseEntity.status(401)
+                    .body(ApiResponse.<String>builder()
+                            .status(false)
+                            .message("Unauthorized")
+                            .data("Refresh token is missing")
+                            .build());
+        }
+        if (!jwtUtil.validateToken(refreshToken)) {
+            return ResponseEntity.status(401)
+                    .body(ApiResponse.<String>builder()
+                            .status(false)
+                            .message("Unauthorized")
+                            .data("Invalid refresh token")
+                            .build());
+        }
+        String username = jwtUtil.getUsernameFromToken(refreshToken);
+        String newAccessToken = jwtUtil.generateToken(username);
+        return ResponseEntity.ok(
+                ApiResponse.<String>builder()
+                        .status(true)
+                        .message("Token refreshed successfully")
+                        .data(newAccessToken)
+                        .build()
+        );
+    }
+
+
+
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<String>> register(@Valid @RequestBody RegisterRequestDto registerRequest) {
         authenticationService.register(registerRequest);
