@@ -52,7 +52,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         if (user == null) {
             // If the user does not exist, create a new user
             user = new User();
-            user.setUsername(username);
+            user.setFullname(username);
             user.setEmail(email);
             user.setRole(Role.USER);
             user.setPassword("Oath2User"); // Set a default password or handle it as per your requirement
