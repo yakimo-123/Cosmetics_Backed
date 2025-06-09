@@ -36,8 +36,9 @@ public class SecurityConfig {
             "/v3/api-docs/**",
             "/swagger-ui/**",
             "/swagger-ui.html",
-            "/api/products/**"
-
+            "/api/products/**",
+            "/api/categories/**",
+            "/api/images/**",
     };
 
     public SecurityConfig(AuthEntryPointJwt authEntryPointJwt, AuthTokenFilter authTokenFilter, CustomOAuth2SuccessHandler customOAuth2SuccessHandler) {

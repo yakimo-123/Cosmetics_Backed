@@ -6,21 +6,16 @@ import org.cosmetic.com.dto.request.OrderRequestDto;
 import org.cosmetic.com.enums.OrderStatus;
 import org.cosmetic.com.mapper.OrderDetailMapper;
 import org.cosmetic.com.mapper.OrderMapper;
-import org.cosmetic.com.model.Order;
-import org.cosmetic.com.model.OrderDetail;
-import org.cosmetic.com.model.Product;
-import org.cosmetic.com.model.User;
-import org.cosmetic.com.repository.OrderDetailRepository;
-import org.cosmetic.com.repository.OrderRepository;
-import org.cosmetic.com.repository.ProductRepository;
-import org.cosmetic.com.repository.UserRepository;
+import org.cosmetic.com.model.*;
+import org.cosmetic.com.repository.*;
 import org.cosmetic.com.service.OrderService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -32,6 +27,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderMapper orderMapper;
     private final OrderDetailMapper orderDetailMapper;
     private final OrderDetailRepository orderDetailRepository;
+    private final InventoryRepository inventoryRepository;
 
     @Override
     public List<Order> findAll() {
@@ -54,11 +50,31 @@ public class OrderServiceImpl implements OrderService {
 
         BigDecimal totalPrice = BigDecimal.ZERO;
         List<OrderDetailRequestDto> orderDetails = requestDto.getOrderDetails();
+
+        List<Long> productIds = orderDetails.stream()
+                .map(OrderDetailRequestDto::getProductId)
+                .toList();
+        Map<Long,Product> productMap = productRepository.findAllById(productIds).stream()
+                .collect(Collectors.toMap(Product::getId, p -> p));
+        Map<Long, Inventory> inventoryMap = inventoryRepository.findAllByProductIdIn(productIds).stream()
+                .collect(Collectors.toMap(i -> i.getProduct().getId(), i -> i));
+
+
         for (OrderDetailRequestDto orderDetail : orderDetails) {
             BigDecimal subPrice = BigDecimal.ZERO;
             // Validate product
-            Product product = productRepository.findById(orderDetail.getProductId())
-                    .orElseThrow(() -> new IllegalArgumentException("Product not found with id: " + orderDetail.getProductId()));
+            Product product = productMap.get(orderDetail.getProductId());
+            if (product == null) {
+                throw new IllegalArgumentException("Product not found with id: " + orderDetail.getProductId());
+            }
+            // Validate inventory
+            Inventory inventory = inventoryMap.get(product.getId());
+            if (inventory == null || inventory.getQuantity() < orderDetail.getQuantity()) {
+                throw new IllegalArgumentException("Insufficient inventory for product: " + product.getProductName());
+            }
+            // Update inventory
+            inventory.setQuantity(inventory.getQuantity() - orderDetail.getQuantity());
+
             // Create OrderDetail and set product
             subPrice = totalPrice.add(product.getPrice().multiply(BigDecimal.valueOf(orderDetail.getQuantity())));
             OrderDetail detail = orderDetailMapper.toEntity(orderDetail, product);
@@ -75,10 +91,22 @@ public class OrderServiceImpl implements OrderService {
         // Save order
         order = orderRepository.save(order);
         // Save order details
+        inventoryRepository.saveAll(inventoryMap.values());
         orderDetailRepository.saveAll(order.getOrderDetails());
 
         return order ;
     }
+
+    private boolean validateInventoryAndReturnListProduct(List<OrderDetailRequestDto>  orderDetailRequestDtoList) {
+        // Check if the product is available in the inventory
+        if (inventoryRepository.existsByProductIdAndQuantityGreaterThanEqual(orderDetail.getProduct().getId(), orderDetail.getQuantity())) {
+            // Update inventory
+            inventoryRepository.decreaseQuantity(orderDetail.getProduct().getId(), orderDetail.getQuantity());
+        } else {
+            throw new IllegalArgumentException("Insufficient inventory for product: " + orderDetail.getProduct().getName());
+        }
+    }
+
 
     @Override
     public void deleteById(Long id) {

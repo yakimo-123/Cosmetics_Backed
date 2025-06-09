@@ -5,12 +5,10 @@ import org.cosmetic.com.dto.request.ProductRequestDto;
 import org.cosmetic.com.enums.ImageType;
 import org.cosmetic.com.mapper.ProductMapper;
 import org.cosmetic.com.model.*;
-import org.cosmetic.com.repository.BrandRepository;
-import org.cosmetic.com.repository.CategoryRepository;
-import org.cosmetic.com.repository.ProductRepository;
-import org.cosmetic.com.repository.SupplierRepository;
+import org.cosmetic.com.repository.*;
 import org.cosmetic.com.service.CategoryService;
 import org.cosmetic.com.service.ImgUrlService;
+import org.cosmetic.com.service.InventoryService;
 import org.cosmetic.com.service.ProductService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +29,8 @@ public class ProductServiceImpl implements ProductService {
     private CategoryRepository categoryRepository;
     private SupplierRepository supplierRepository;
     private BrandRepository brandRepository;
+    private InventoryRepository inventoryRepository;
+
 
     @Override
     public List<Product> findAll() {
@@ -59,6 +59,13 @@ public class ProductServiceImpl implements ProductService {
         product.setBrand(brand);
 
         product = productRepository.save(product);
+
+        // Save inventory
+        inventoryRepository.save(Inventory.builder()
+                .product(product)
+                .quantity(productRequestDto.getQuantity())
+                .build());
+
 
         if (images != null && !images.isEmpty()) {
             for (MultipartFile image : images) {
