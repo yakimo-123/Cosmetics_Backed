@@ -52,6 +52,11 @@ public class Product {
     @JsonIgnore
     private List<OrderDetail> orderDetails;
 
+
+    @ManyToOne
+    @JoinColumn(name = "brand_id")
+    private Brand brand;
+
     @Override
     public String toString() {
         return "Product{" +

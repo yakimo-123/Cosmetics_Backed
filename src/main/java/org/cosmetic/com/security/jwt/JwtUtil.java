@@ -22,6 +22,10 @@ public class JwtUtil {
     @Value("${jwt.expiration}")
     private long jwtExpiration;
 
+    @Value("${jwt.refresh.expiration}")
+    private long refreshExpiration;
+
+
     public String generateToken(String username) {
         try {
             JWSSigner signer = new MACSigner(jwtSecret.getBytes());
@@ -41,6 +45,28 @@ public class JwtUtil {
             throw new RuntimeException("Error generating JWT", e);
         }
     }
+
+    public String generateRefreshToken(String username) {
+        try {
+            JWSSigner signer = new MACSigner(jwtSecret.getBytes());
+            JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                    .subject(username)
+                    .issueTime(new Date())
+                    .expirationTime(new Date(System.currentTimeMillis() + refreshExpiration))
+                    .claim("type", "refresh") // thêm phân biệt token
+                    .build();
+
+            SignedJWT signedJWT = new SignedJWT(
+                    new JWSHeader(JWSAlgorithm.HS256),
+                    claimsSet
+            );
+            signedJWT.sign(signer);
+            return signedJWT.serialize();
+        } catch (Exception e) {
+            throw new RuntimeException("Error generating refresh JWT", e);
+        }
+    }
+
 
     public String getUsernameFromToken(String token) {
         try {
@@ -76,15 +102,7 @@ public class JwtUtil {
     }
 
 
-    public String refreshToken(String token) {
-        try {
-            SignedJWT signedJWT = SignedJWT.parse(token);
-            String username = signedJWT.getJWTClaimsSet().getSubject();
-            return generateToken(username);
-        } catch (ParseException e) {
-            throw new RuntimeException("Error refreshing JWT", e);
-        }
-    }
+
     public void logout(String token) {
         // In a stateless JWT implementation, logout is typically handled by client-side
         // logic (e.g., removing the token from local storage).
@@ -98,4 +116,15 @@ public class JwtUtil {
         }
         return null;
     }
+
+    public boolean isRefreshToken(String token) {
+        try {
+            SignedJWT signedJWT = SignedJWT.parse(token);
+            Object type = signedJWT.getJWTClaimsSet().getClaim("type");
+            return "refresh".equals(type);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
 }

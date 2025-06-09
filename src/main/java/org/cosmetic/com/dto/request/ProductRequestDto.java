@@ -33,5 +33,7 @@ public class ProductRequestDto {
     @NotNull(message = "Supplier ID is required")
     private Long supplierId;
 
+    @NotNull(message = "Brand ID is required")
+    private Long brandId;
 
 }

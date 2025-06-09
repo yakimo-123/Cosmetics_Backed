@@ -4,10 +4,8 @@ import lombok.AllArgsConstructor;
 import org.cosmetic.com.dto.request.ProductRequestDto;
 import org.cosmetic.com.enums.ImageType;
 import org.cosmetic.com.mapper.ProductMapper;
-import org.cosmetic.com.model.Category;
-import org.cosmetic.com.model.ImageUrl;
-import org.cosmetic.com.model.Product;
-import org.cosmetic.com.model.Supplier;
+import org.cosmetic.com.model.*;
+import org.cosmetic.com.repository.BrandRepository;
 import org.cosmetic.com.repository.CategoryRepository;
 import org.cosmetic.com.repository.ProductRepository;
 import org.cosmetic.com.repository.SupplierRepository;
@@ -32,6 +30,8 @@ public class ProductServiceImpl implements ProductService {
     private ImgUrlService imgUrlService;
     private CategoryRepository categoryRepository;
     private SupplierRepository supplierRepository;
+    private BrandRepository brandRepository;
+
     @Override
     public List<Product> findAll() {
         return productRepository.findAll();
@@ -52,10 +52,11 @@ public class ProductServiceImpl implements ProductService {
         }
         product.setCategories(categories);
         // Set supplier
-        Supplier supplier = supplierRepository.findById(productRequestDto.getSupplierId())
-                .orElseThrow(() -> new IllegalArgumentException("Supplier not found."));
+        Supplier supplier = supplierRepository.getReferenceById(productRequestDto.getSupplierId());
         product.setSupplier(supplier);
-
+        // Set brand
+        Brand brand = brandRepository.getReferenceById(productRequestDto.getBrandId());
+        product.setBrand(brand);
 
         product = productRepository.save(product);
 

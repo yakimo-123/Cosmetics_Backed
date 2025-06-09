@@ -1,11 +1,9 @@
 package org.cosmetic.com.model;
 
-
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "brands")
@@ -20,4 +18,7 @@ public class Brand {
 
     @Column(nullable = false, unique = true)
     private String name;
+
+    @OneToMany(mappedBy = "brand")
+    private List<Product> products;
 }

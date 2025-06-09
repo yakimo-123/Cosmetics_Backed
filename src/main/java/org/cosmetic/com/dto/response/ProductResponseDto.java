@@ -11,4 +11,5 @@ public class ProductResponseDto {
     private String description;
     private Double price;
     private Integer quantity;
+    private String brandName;
 }

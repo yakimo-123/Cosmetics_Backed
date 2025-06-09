@@ -10,6 +10,7 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
     ProductResponseDto toResponseDto(Product product);
+
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "categories", ignore = true)
     @Mapping(target = "supplier", ignore = true)
