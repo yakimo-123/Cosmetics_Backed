@@ -8,6 +8,7 @@ import org.cosmetic.com.dto.request.LoginRequestDto;
 import org.cosmetic.com.dto.request.RegisterRequestDto;
 import org.cosmetic.com.dto.response.ApiResponse;
 import org.cosmetic.com.dto.response.LoginResponseDto;
+import org.cosmetic.com.enums.Role;
 import org.cosmetic.com.security.jwt.JwtUtil;
 import org.cosmetic.com.service.AuthenticationService;
 import org.springframework.http.ResponseEntity;
@@ -26,14 +27,7 @@ public class AuthController {
             @Valid @RequestBody LoginRequestDto loginRequest,
             HttpServletResponse response
     ) {
-        LoginResponseDto loginResponse = authenticationService.authenticate(loginRequest);
-        if (loginResponse.getUsername() != null) {
-            Cookie cookie = new Cookie("refreshToken", jwtUtil.generateRefreshToken(loginResponse.getUsername()));
-            cookie.setHttpOnly(true);
-            // cookie.setSecure(true);  use this if your application is served over HTTPS
-            cookie.setPath("/");
-            response.addCookie(cookie);
-        }
+        LoginResponseDto loginResponse = authenticationService.authenticate(loginRequest,response);
         return ResponseEntity.ok(
                 ApiResponse.<LoginResponseDto>builder()
                         .status(true)
@@ -78,7 +72,8 @@ public class AuthController {
                             .build());
         }
         String username = jwtUtil.getUsernameFromToken(refreshToken);
-        String newAccessToken = jwtUtil.generateToken(username);
+        Role role =Role.valueOf(jwtUtil.getRoleFromToken(refreshToken));
+        String newAccessToken = jwtUtil.generateToken(username,role);
         return ResponseEntity.ok(
                 ApiResponse.<String>builder()
                         .status(true)

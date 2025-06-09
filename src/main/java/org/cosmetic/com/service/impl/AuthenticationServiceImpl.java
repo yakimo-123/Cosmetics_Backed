@@ -1,5 +1,7 @@
 package org.cosmetic.com.service.impl;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.cosmetic.com.dto.request.LoginRequestDto;
 import org.cosmetic.com.dto.request.RegisterRequestDto;
@@ -23,14 +25,20 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     // This method is supposed to authenticate a user and return a LoginResponseDto
     @Override
-    public LoginResponseDto authenticate(LoginRequestDto request) {
+    public LoginResponseDto authenticate(LoginRequestDto request, HttpServletResponse response) {
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("Invalid credentials");
         }
+        Cookie cookie = new Cookie("refreshToken", jwtUtil.generateRefreshToken(user.getUsername(), user.getRole()));
+        cookie.setHttpOnly(true);
+        // cookie.setSecure(true);  use this if your application is served over HTTPS
+        cookie.setPath("/");
+        response.addCookie(cookie);
+
         return LoginResponseDto.builder()
-                .accessToken(jwtUtil.generateToken(user.getUsername()))
+                .accessToken(jwtUtil.generateToken(user.getUsername(),user.getRole()))
                 .username(user.getUsername())
                 .build();
     }

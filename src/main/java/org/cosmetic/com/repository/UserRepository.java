@@ -1,6 +1,7 @@
 // src/main/java/org/cosmetic/com/repository/UserRepository.java
 package org.cosmetic.com.repository;
 
+import jakarta.validation.constraints.Email;
 import org.cosmetic.com.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -12,4 +13,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByEmail(String email);
 
     Optional<User> findByUsername(String username);
+
+    User findByEmail(@Email String email);
 }

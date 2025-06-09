@@ -6,6 +6,7 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import org.cosmetic.com.enums.Role;
 import org.cosmetic.com.exception.JwtException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -26,15 +27,15 @@ public class JwtUtil {
     private long refreshExpiration;
 
 
-    public String generateToken(String username) {
+    public String generateToken(String username, Role role) {
         try {
             JWSSigner signer = new MACSigner(jwtSecret.getBytes());
             JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                     .subject(username)
                     .issueTime(new Date())
+                    .claim("role", role)
                     .expirationTime(new Date(System.currentTimeMillis() + jwtExpiration))
                     .build();
-
             SignedJWT signedJWT = new SignedJWT(
                     new JWSHeader(JWSAlgorithm.HS256),
                     claimsSet
@@ -46,13 +47,14 @@ public class JwtUtil {
         }
     }
 
-    public String generateRefreshToken(String username) {
+    public String generateRefreshToken(String username, Role role) {
         try {
             JWSSigner signer = new MACSigner(jwtSecret.getBytes());
             JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                     .subject(username)
                     .issueTime(new Date())
                     .expirationTime(new Date(System.currentTimeMillis() + refreshExpiration))
+                    .claim("role", role)
                     .claim("type", "refresh") // thêm phân biệt token
                     .build();
 
@@ -67,6 +69,15 @@ public class JwtUtil {
         }
     }
 
+    public String getRoleFromToken(String token) {
+        try {
+            SignedJWT signedJWT = SignedJWT.parse(token);
+            JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
+            return claimsSet.getStringClaim("role");
+        } catch (ParseException e) {
+            return null;
+        }
+    }
 
     public String getUsernameFromToken(String token) {
         try {

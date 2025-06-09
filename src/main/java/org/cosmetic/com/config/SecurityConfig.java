@@ -54,7 +54,8 @@ public class SecurityConfig {
                         .requestMatchers(WHITE_LIST_URL).permitAll()
                         .anyRequest().authenticated())
                 .oauth2Login(oath2 -> oath2.
-                        successHandler(customOAuth2SuccessHandler))
+                        successHandler(customOAuth2SuccessHandler)
+                )
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(authEntryPointJwt))
                 .addFilterBefore(
                         authTokenFilter,

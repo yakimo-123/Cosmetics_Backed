@@ -1,6 +1,6 @@
 package org.cosmetic.com.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.cosmetic.com.dto.request.ProductRequestDto;
@@ -16,7 +16,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -36,11 +35,11 @@ public class ProductController {
     ) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Product> products = productService.findAll(pageable);
-        Page<ProductResponseDto> productDtos = products.map(productMapper::toResponseDto);
+        Page<ProductResponseDto> productDto = products.map(productMapper::toResponseDto);
         ApiResponse<Page<ProductResponseDto>> response = ApiResponse.<Page<ProductResponseDto>>builder()
                 .status(true)
                 .message("Products retrieved successfully")
-                .data(productDtos)
+                .data(productDto)
                 .build();
         return ResponseEntity.ok(response);
     }
@@ -75,7 +74,7 @@ public class ProductController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping(value = "/{id}", consumes = {"multipart/form-data"})
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<ProductResponseDto>> updateProduct(
             @PathVariable Long id,
             @Valid ProductRequestDto productRequestDto,
