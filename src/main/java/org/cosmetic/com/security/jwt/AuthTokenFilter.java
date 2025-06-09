@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.cosmetic.com.exception.JwtException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,7 +28,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
-            String token = jwtUtil.getTokenFromHeader(request.getHeader("Authorization"));
+            String token = jwtUtil.getTokenFromHeader(request.getHeader(HttpHeaders.AUTHORIZATION));
             if (token != null && jwtUtil.validateToken(token)) {
                 String username = jwtUtil.getUsernameFromToken(token);
                 if (username != null) {

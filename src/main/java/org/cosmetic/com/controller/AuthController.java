@@ -59,6 +59,7 @@ public class AuthController {
         );
     }
 
+    @PostMapping("/refresh-token")
     public ResponseEntity<ApiResponse<?>> refreshToken(@CookieValue(value = "refreshToken", required = false) String refreshToken) {
         if (refreshToken == null) {
             return ResponseEntity.status(401)

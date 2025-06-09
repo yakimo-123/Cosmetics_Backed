@@ -2,6 +2,7 @@ package org.cosmetic.com.config;
 
 import org.cosmetic.com.security.jwt.AuthEntryPointJwt;
 import org.cosmetic.com.security.jwt.AuthTokenFilter;
+import org.cosmetic.com.security.oath2.CustomOAuth2SuccessHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -24,6 +25,8 @@ public class SecurityConfig {
 
     private final AuthEntryPointJwt authEntryPointJwt;
     private final AuthTokenFilter authTokenFilter;
+    private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
+
     // Define the white-listed URLs that do not require authentication
     String[] WHITE_LIST_URL = {
             "/api/auth/**",
@@ -37,9 +40,10 @@ public class SecurityConfig {
 
     };
 
-    public SecurityConfig(AuthEntryPointJwt authEntryPointJwt, AuthTokenFilter authTokenFilter) {
+    public SecurityConfig(AuthEntryPointJwt authEntryPointJwt, AuthTokenFilter authTokenFilter, CustomOAuth2SuccessHandler customOAuth2SuccessHandler) {
         this.authEntryPointJwt = authEntryPointJwt;
         this.authTokenFilter = authTokenFilter;
+        this.customOAuth2SuccessHandler = customOAuth2SuccessHandler;
     }
 
     @Bean
@@ -49,6 +53,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(WHITE_LIST_URL).permitAll()
                         .anyRequest().authenticated())
+                .oauth2Login(oath2 -> oath2.
+                        successHandler(customOAuth2SuccessHandler))
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(authEntryPointJwt))
                 .addFilterBefore(
                         authTokenFilter,
@@ -60,7 +66,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000","http://localhost:8080"));
+        configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:8080", "http://localhost:5173"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true); // Quan trọng nếu dùng cookie hoặc token
