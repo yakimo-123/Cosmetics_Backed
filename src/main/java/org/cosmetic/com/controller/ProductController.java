@@ -31,10 +31,10 @@ public class ProductController {
     @GetMapping("/page")
     public ResponseEntity<ApiResponse<Page<ProductResponseDto>>> getAllProducts(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "20") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Product> products = productService.findAll(pageable);
+        Page<Product> products = productService.findAllProductNotInProductStatusDISCONTINUED(pageable);
         Page<ProductResponseDto> productDto = products.map(productMapper::toResponseDto);
         ApiResponse<Page<ProductResponseDto>> response = ApiResponse.<Page<ProductResponseDto>>builder()
                 .status(true)

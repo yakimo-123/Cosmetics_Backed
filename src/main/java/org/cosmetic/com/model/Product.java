@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.cosmetic.com.enums.ProductStatus;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -35,6 +36,8 @@ public class Product {
     @Column(name = "image_url")
     private String imageUrl;
 
+    @Enumerated(EnumType.STRING)
+    private ProductStatus productStatus = ProductStatus.ACTIVE;
 
     @ManyToMany
     @JoinTable(
@@ -54,6 +57,7 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<OrderDetail> orderDetails;
+
 
 
     @ManyToOne

@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @Builder
@@ -14,6 +15,6 @@ public class ProductResponseDto {
     private BigDecimal price;
     private Integer quantity;
     private String brandName;
-    private String categoryName;
+    private List<String> categoryNames;
     private String imageUrl;
 }

@@ -21,5 +21,5 @@ public interface ProductService {
 
     Product update(Long id,ProductRequestDto product,List<MultipartFile> images) throws IOException;
 
-    Page<Product> findAll(Pageable pageable);
+    Page<Product> findAllProductNotInProductStatusDISCONTINUED(Pageable pageable);
 }

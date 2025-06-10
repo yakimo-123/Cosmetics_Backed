@@ -3,6 +3,7 @@ package org.cosmetic.com.service.impl;
 import lombok.AllArgsConstructor;
 import org.cosmetic.com.dto.request.ProductRequestDto;
 import org.cosmetic.com.enums.ImageType;
+import org.cosmetic.com.enums.ProductStatus;
 import org.cosmetic.com.mapper.ProductMapper;
 import org.cosmetic.com.model.*;
 import org.cosmetic.com.repository.*;
@@ -30,6 +31,7 @@ public class ProductServiceImpl implements ProductService {
     private BrandRepository brandRepository;
     private InventoryRepository inventoryRepository;
     private InventoryService inventoryService;
+
 
     @Override
     public List<Product> findAll() {
@@ -93,7 +95,11 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void deleteById(Long id) {
-        productRepository.deleteById(id);
+        Product product = productRepository.findById(id).orElseThrow(
+                () -> new IllegalArgumentException("Product not found with id: " + id)
+        );
+        product.setProductStatus(ProductStatus.DISCONTINUED);
+        productRepository.save(product);
     }
 
     @Override
@@ -121,7 +127,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<Product> findAll(Pageable pageable) {
-        return productRepository.findAll(pageable);
+    public Page<Product> findAllProductNotInProductStatusDISCONTINUED(Pageable pageable) {
+        return productRepository.findByProductStatusNotIn(List.of(ProductStatus.DISCONTINUED),pageable);
     }
 }
