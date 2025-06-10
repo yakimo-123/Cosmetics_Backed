@@ -22,7 +22,7 @@ public class OrderRequestDto {
     @NotNull(message = "Customer ID is required")
     private Long customerId;
 
-    private OrderStatus orderStatus;
+    private OrderStatus orderStatus = OrderStatus.PENDING;
 
     @NotNull(message = "Payment method is required")
     private PaymentMethod paymentMethod;

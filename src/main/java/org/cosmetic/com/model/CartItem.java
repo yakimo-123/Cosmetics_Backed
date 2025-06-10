@@ -17,6 +17,7 @@ public class CartItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cart_id")
     private Cart cart;
@@ -28,4 +29,21 @@ public class CartItem {
     private Integer quantity;
 
     private BigDecimal price;
+
+    private BigDecimal subPrice;
+
+    private BigDecimal unitPrice;
+
+
+    public void updateSubPrice() {
+        if (product != null && price != null && quantity != null) {
+            this.subPrice = price.multiply(BigDecimal.valueOf(quantity));
+        } else {
+            this.subPrice = BigDecimal.ZERO;
+        }
+    }
+
+
+
+
 }

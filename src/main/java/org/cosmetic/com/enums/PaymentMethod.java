@@ -1,9 +1,12 @@
 package org.cosmetic.com.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum PaymentMethod {
     CREDIT_CARD("Credit Card"),
     DEBIT_CARD("Debit Card"),
-    PAYPAL("PayPal"),
+    MOMO("MoMo"),
     BANK_TRANSFER("Bank Transfer"),
     CASH_ON_DELIVERY("Cash on Delivery");
 
@@ -13,7 +16,4 @@ public enum PaymentMethod {
         this.displayName = displayName;
     }
 
-    public String getDisplayName() {
-        return displayName;
-    }
 }

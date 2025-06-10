@@ -35,10 +35,12 @@ public class Order {
     private BigDecimal totalAmount;
 
     @Column(name = "order_status", nullable = false)
+    @Enumerated(EnumType.STRING)
     private OrderStatus OrderStatus;
 
 
     @Column(name = "payment_method")
+    @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
 
 

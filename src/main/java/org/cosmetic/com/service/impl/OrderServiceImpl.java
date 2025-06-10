@@ -1,5 +1,6 @@
 package org.cosmetic.com.service.impl;
 
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.cosmetic.com.dto.request.OrderDetailRequestDto;
 import org.cosmetic.com.dto.request.OrderRequestDto;
@@ -39,6 +40,8 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.findById(id);
     }
 
+
+    @Transactional
     @Override
     public Order save(OrderRequestDto requestDto) {
         Order order = orderMapper.toEntity(requestDto);
@@ -61,7 +64,7 @@ public class OrderServiceImpl implements OrderService {
 
 
         for (OrderDetailRequestDto orderDetail : orderDetails) {
-            BigDecimal subPrice = BigDecimal.ZERO;
+            int quantity = orderDetail.getQuantity();
             // Validate product
             Product product = productMap.get(orderDetail.getProductId());
             if (product == null) {
@@ -72,15 +75,18 @@ public class OrderServiceImpl implements OrderService {
             if (inventory == null || inventory.getQuantity() < orderDetail.getQuantity()) {
                 throw new IllegalArgumentException("Insufficient inventory for product: " + product.getProductName());
             }
-            // Update inventory
-            inventory.setQuantity(inventory.getQuantity() - orderDetail.getQuantity());
 
+
+            BigDecimal unitPrice = product.getPrice();
+            BigDecimal subPrice = unitPrice.multiply(BigDecimal.valueOf(quantity));
             // Create OrderDetail and set product
-            subPrice = totalPrice.add(product.getPrice().multiply(BigDecimal.valueOf(orderDetail.getQuantity())));
             OrderDetail detail = orderDetailMapper.toEntity(orderDetail, product);
-            detail.setUnitPrice(product.getPrice());
+            detail.setUnitPrice(unitPrice);
             detail.setSubPrice(subPrice);
             order.addOrderDetail(detail);
+
+            // Update inventory
+            inventory.setQuantity(inventory.getQuantity() - quantity);
 
             // Update total price
             totalPrice = totalPrice.add(subPrice);
@@ -90,7 +96,6 @@ public class OrderServiceImpl implements OrderService {
         order.setTotalAmount(totalPrice);
         // Save order
         order = orderRepository.save(order);
-        // Save order details
         inventoryRepository.saveAll(inventoryMap.values());
         orderDetailRepository.saveAll(order.getOrderDetails());
 
