@@ -6,7 +6,6 @@ import org.cosmetic.com.enums.ImageType;
 import org.cosmetic.com.mapper.ProductMapper;
 import org.cosmetic.com.model.*;
 import org.cosmetic.com.repository.*;
-import org.cosmetic.com.service.CategoryService;
 import org.cosmetic.com.service.ImgUrlService;
 import org.cosmetic.com.service.InventoryService;
 import org.cosmetic.com.service.ProductService;
@@ -73,9 +72,13 @@ public class ProductServiceImpl implements ProductService {
         Inventory inventory = inventoryService.getOrCreateInventory(product.getId(),quantity);
         product.setInventory(inventory);
 
-
+        boolean isFirstImageAddEd = false;
         if (images != null && !images.isEmpty()) {
             for (MultipartFile image : images) {
+                if (!isFirstImageAddEd) {
+                    isFirstImageAddEd = true;
+                    product.setImageUrl(imgUrlService.saveImageInS2(image));
+                }
                 String imageUrlInS2 = imgUrlService.saveImageInS2(image);
                 ImageUrl imageUrl = ImageUrl.builder()
                         .url(imageUrlInS2)
