@@ -52,7 +52,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public void logout(LoginResponseDto response) {
+    public void logout(String accessToken) {
+        // Invalidate the access token if necessary
+        // This could involve removing it from a cache or database if you're tracking active sessions
+        // For stateless JWT, you might not need to do anything here
+        if (accessToken == null || accessToken.isEmpty()) {
+            throw new RuntimeException("Invalid access token");
+        }
+        // Optionally, you can log the logout action or perform any other cleanup
 
     }
 

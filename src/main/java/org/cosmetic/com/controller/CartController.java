@@ -1,5 +1,6 @@
 package org.cosmetic.com.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.cosmetic.com.dto.response.ApiResponse;
 import org.cosmetic.com.model.Cart;
@@ -38,8 +39,12 @@ public class CartController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<Cart>> createCart(@RequestBody Cart cart) {
-        Cart savedCart = cartService.save(cart);
+    public ResponseEntity<ApiResponse<Cart>> getOrCreateCart(
+            @RequestParam (required = false) Long userId,
+            HttpServletRequest request
+    ) {
+        String sessionId = request.getSession().getId();
+        Cart savedCart = cartService.getOrCreateCart(userId, sessionId);
         return ResponseEntity.status(201).body(ApiResponse.<Cart>builder()
                 .status(true)
                 .message("Cart created successfully")
@@ -47,19 +52,6 @@ public class CartController {
                 .build());
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<Cart>> updateCart(@PathVariable Long id, @RequestBody Cart cart) {
-        return cartService.findById(id)
-                .map(existingCart -> {
-                    cart.setId(id);
-                    Cart updated = cartService.save(cart);
-                    return ResponseEntity.ok(ApiResponse.<Cart>builder()
-                            .status(true)
-                            .message("Cart updated successfully")
-                            .data(updated)
-                            .build());
-                }).orElseThrow(() -> new IllegalArgumentException("Cart not found"));
-    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteCart(@PathVariable Long id) {

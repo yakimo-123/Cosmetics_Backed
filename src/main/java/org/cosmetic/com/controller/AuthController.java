@@ -38,13 +38,22 @@ public class AuthController {
         );
     }
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<String>> logout(HttpServletResponse response) {
+    public ResponseEntity<ApiResponse<String>> logout(
+            @RequestHeader (value = "Authorization",required = false) String authorizationHeader,
+            HttpServletResponse response
+    ) {
+        // Clear the refresh token cookie
         Cookie cookie = new Cookie("refreshToken", null);
         cookie.setHttpOnly(true);
        // cookie.setSecure(true);  use this if your application is served over HTTPS
         cookie.setPath("/");
         cookie.setMaxAge(0); // Delete cookie
         response.addCookie(cookie);
+
+        // Call the logout method in the authentication service
+        String accessToken = jwtUtil.getTokenFromHeader(authorizationHeader);
+        authenticationService.logout(accessToken);
+
         return ResponseEntity.ok(
                 ApiResponse.<String>builder()
                         .status(true)

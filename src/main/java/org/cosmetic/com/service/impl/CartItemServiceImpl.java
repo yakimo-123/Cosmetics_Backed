@@ -20,13 +20,12 @@ import java.util.Optional;
 public class CartItemServiceImpl implements CartItemService {
 
     private final CartItemRepository cartItemRepository;
-    private final CartService cartService;
     private final ProductService productService;
     private final CartRepository cartRepository;
 
     @Override
     public void addItemToCart(Long cartId, Long productId, int quantity) {
-        Cart cart = cartService.findById(cartId)
+        Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new IllegalArgumentException("Cart not found with id: " + cartId));
         Product product = productService.findById(productId).orElseThrow(
                 () -> new IllegalArgumentException("Product not found with id: " + productId)
@@ -46,21 +45,21 @@ public class CartItemServiceImpl implements CartItemService {
         cartItem.updateSubPrice();
         cart.addCartItem(cartItem);
         cartItemRepository.save(cartItem);
-        cartService.save(cart);
+        cartRepository.save(cart);
     }
 
     @Override
     public void removeItemFromCart(Long cartId, Long productId) {
-        Cart cart = cartService.findById(cartId)
+        Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new IllegalArgumentException("Cart not found with id: " + cartId));
         CartItem cartItem = getCartItem(cartId, productId);
         cart.removeCartItem(cartItem);
-        cartService.save(cart);
+        cartRepository.save(cart);
     }
 
     @Override
     public void updateItemQuantity(Long cartId, Long productId, int quantity) {
-        Cart cart = cartService.findById(cartId)
+        Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new IllegalArgumentException("Cart not found with id: " + cartId));
         cart.getCartItems().stream()
                 .filter(item -> item.getProduct().getId().equals(productId))
@@ -78,7 +77,7 @@ public class CartItemServiceImpl implements CartItemService {
     }
 
     private CartItem getCartItem(Long cartId, Long productId) {
-        Cart cart = cartService.findById(cartId).orElseThrow(
+        Cart cart = cartRepository.findById(cartId).orElseThrow(
                 () -> new IllegalArgumentException("Cart not found with id: " + cartId));
         return  cart.getCartItems()
                 .stream()
