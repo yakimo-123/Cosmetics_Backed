@@ -22,8 +22,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
-    @Column(nullable = false, unique = true)
+    @Column(unique = true)
     private String username;
 
     @NotBlank
@@ -42,6 +41,8 @@ public class User {
     )
     private String phone;
 
+
+    private boolean enabled =false;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

@@ -4,6 +4,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.cosmetic.com.dto.request.EmailVerificationRequest;
 import org.cosmetic.com.dto.request.LoginRequestDto;
 import org.cosmetic.com.dto.request.RegisterRequestDto;
 import org.cosmetic.com.dto.response.ApiResponse;
@@ -84,7 +85,6 @@ public class AuthController {
     }
 
 
-
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<String>> register(@Valid @RequestBody RegisterRequestDto registerRequest) {
         authenticationService.register(registerRequest);
@@ -92,8 +92,32 @@ public class AuthController {
                 ApiResponse.<String>builder()
                         .status(true)
                         .message("User registered successfully")
-                        .data("Registration successful")
+                        .data("Registration successful, please check your email for verification")
                         .build()
         );
+    }
+
+    @PostMapping("/verify-email")
+    public ResponseEntity<ApiResponse<String>> verifyEmail(
+            @RequestBody EmailVerificationRequest emailVerificationRequest
+            ) {
+        boolean isVerified = authenticationService.verifyEmail(emailVerificationRequest.getEmail(), emailVerificationRequest.getOtp());
+        if (isVerified) {
+            return ResponseEntity.ok(
+                    ApiResponse.<String>builder()
+                            .status(true)
+                            .message("Email verified successfully")
+                            .data("Email verification successful")
+                            .build()
+            );
+        } else {
+            return ResponseEntity.status(400)
+                    .body(ApiResponse.<String>builder()
+                            .status(false)
+                            .message("Email verification failed")
+                            .data("Invalid or expired token")
+                            .build()
+                    );
+        }
     }
 }

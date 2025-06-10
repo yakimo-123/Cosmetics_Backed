@@ -5,7 +5,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.AllArgsConstructor;
 import org.cosmetic.com.dto.response.ApiResponse;
 import org.cosmetic.com.dto.response.LoginResponseDto;
 import org.cosmetic.com.enums.Role;
@@ -14,7 +13,6 @@ import org.cosmetic.com.repository.UserRepository;
 import org.cosmetic.com.security.jwt.JwtUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -51,18 +49,20 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         User user = userRepository.findByEmail(email).orElse(null);
         if (user == null) {
             // If the user does not exist, create a new user
-            user = new User();
-            user.setFullname(username);
-            user.setEmail(email);
-            user.setRole(Role.USER);
-            user.setPassword("Oath2User"); // Set a default password or handle it as per your requirement
+            user = User.builder()
+                    .fullname(username)
+                    .email(email)
+                    .role(Role.USER) // Default role, can be changed as needed
+                    .enabled(true)
+                    .password("Oath2User") // Set a default password or handle it as per your requirement
+                    .build();
             userRepository.save(user);
         }
         Role role = user.getRole();
 
 
-        String accessToken  = jwtUtil.generateToken(username, role);
-        String refreshToken  = jwtUtil.generateRefreshToken(username,role);
+        String accessToken = jwtUtil.generateToken(username, role);
+        String refreshToken = jwtUtil.generateRefreshToken(username, role);
 
         ApiResponse<LoginResponseDto> responseDtoApiResponse = ApiResponse.<LoginResponseDto>builder()
                 .status(true)

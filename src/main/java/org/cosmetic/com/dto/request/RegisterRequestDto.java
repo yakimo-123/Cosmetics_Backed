@@ -1,5 +1,7 @@
 package org.cosmetic.com.dto.request;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,8 +10,15 @@ import lombok.Setter;
 @Setter
 @Builder
 public class RegisterRequestDto {
-    private String username;
-    private String password;
+
+
+    @NotBlank(message = "Email is required")
+    @Email(message = "Invalid email format")
     private String email;
+
+    @NotBlank(message = "Password is required")
+    private String password;
+
+
     // Add more fields if needed (e.g., fullName, phone, etc.)
 }
