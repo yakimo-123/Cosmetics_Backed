@@ -38,10 +38,7 @@ public class Cart {
         cartItem.setCart(null);
         updateTotalAmount();
     }
-    public void clearCart() {
-        cartItems.forEach(cartItem -> cartItem.setCart(null));
-        cartItems.clear();
-    }
+
 
     public void updateTotalAmount() {
         totalAmount = cartItems.stream()

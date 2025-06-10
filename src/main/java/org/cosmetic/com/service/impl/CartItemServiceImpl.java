@@ -77,27 +77,6 @@ public class CartItemServiceImpl implements CartItemService {
         cartRepository.save(cart);
     }
 
-
-    @Override
-    public List<CartItem> findAll() {
-        return cartItemRepository.findAll();
-    }
-
-    @Override
-    public Optional<CartItem> findById(Long id) {
-        return cartItemRepository.findById(id);
-    }
-
-    @Override
-    public CartItem save(CartItem cartItem) {
-        return cartItemRepository.save(cartItem);
-    }
-
-    @Override
-    public void deleteById(Long id) {
-        cartItemRepository.deleteById(id);
-    }
-
     private CartItem getCartItem(Long cartId, Long productId) {
         Cart cart = cartService.findById(cartId).orElseThrow(
                 () -> new IllegalArgumentException("Cart not found with id: " + cartId));

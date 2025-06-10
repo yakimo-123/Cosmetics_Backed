@@ -9,4 +9,5 @@ public interface CartService {
     Optional<Cart> findById(Long id);
     Cart save(Cart cart);
     void deleteById(Long id);
+    Optional<Cart> findByUserId(Long userId);
 }
