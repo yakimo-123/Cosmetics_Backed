@@ -63,7 +63,7 @@ public class ProductController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<ProductResponseDto>> createProduct(
             @RequestPart("product") @Valid ProductRequestDto productRequestDto,
-            @RequestPart("images") List<MultipartFile> images
+            @RequestPart(value = "images", required = false) List<MultipartFile> images
     ) throws IOException {
         Product savedProduct = productService.save(productRequestDto, images);
         ApiResponse<ProductResponseDto> response = ApiResponse.<ProductResponseDto>builder()

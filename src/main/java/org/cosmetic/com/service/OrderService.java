@@ -1,6 +1,7 @@
 package org.cosmetic.com.service;
 
 import org.cosmetic.com.dto.request.OrderRequestDto;
+import org.cosmetic.com.enums.PaymentMethod;
 import org.cosmetic.com.model.Order;
 
 import java.util.List;
@@ -14,4 +15,6 @@ public interface OrderService {
     Order save(OrderRequestDto orderRequestDto);
 
     void deleteById(Long id);
+
+    Order createOrderFromCart(Long userId, String shippingAddress, PaymentMethod paymentMethod, String sessionId);
 }

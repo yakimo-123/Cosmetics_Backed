@@ -30,7 +30,7 @@ public class ProductServiceImpl implements ProductService {
     private SupplierRepository supplierRepository;
     private BrandRepository brandRepository;
     private InventoryRepository inventoryRepository;
-
+    private InventoryService inventoryService;
 
     @Override
     public List<Product> findAll() {
@@ -52,19 +52,26 @@ public class ProductServiceImpl implements ProductService {
         }
         product.setCategories(categories);
         // Set supplier
-        Supplier supplier = supplierRepository.getReferenceById(productRequestDto.getSupplierId());
+        Supplier supplier = supplierRepository.findById(productRequestDto.getSupplierId()).orElseThrow(
+                () -> new IllegalArgumentException("Supplier not found with id: " + productRequestDto.getSupplierId())
+        );
         product.setSupplier(supplier);
         // Set brand
-        Brand brand = brandRepository.getReferenceById(productRequestDto.getBrandId());
+        Brand brand = brandRepository.findById(productRequestDto.getBrandId()).orElseThrow(
+                () -> new IllegalArgumentException("Brand not found with id: " + productRequestDto.getBrandId())
+        );
         product.setBrand(brand);
 
-        product = productRepository.save(product);
 
+        int quantity = productRequestDto.getQuantity();
         // Save inventory
-        inventoryRepository.save(Inventory.builder()
-                .product(product)
-                .quantity(productRequestDto.getQuantity())
-                .build());
+        if (productRequestDto.getQuantity() < 0) {
+            throw new IllegalArgumentException("Quantity cannot be negative");
+        }
+        //Save product to get product id
+        product = productRepository.save(product);
+        Inventory inventory = inventoryService.getOrCreateInventory(product.getId(),quantity);
+        product.setInventory(inventory);
 
 
         if (images != null && !images.isEmpty()) {
@@ -78,7 +85,7 @@ public class ProductServiceImpl implements ProductService {
                 imgUrlService.saveImageUrl(imageUrl);
             }
         }
-        return product;
+        return productRepository.save(product);
     }
 
     @Override

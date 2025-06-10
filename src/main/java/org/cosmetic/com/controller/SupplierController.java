@@ -1,6 +1,7 @@
 package org.cosmetic.com.controller;
 
 import lombok.AllArgsConstructor;
+import org.cosmetic.com.dto.request.SupplierRequestDto;
 import org.cosmetic.com.dto.response.ApiResponse;
 import org.cosmetic.com.model.Supplier;
 import org.cosmetic.com.service.SupplierService;
@@ -50,8 +51,8 @@ public class SupplierController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<Supplier>> createSupplier(@RequestBody Supplier supplier) {
-        Supplier savedSupplier = supplierService.save(supplier);
+    public ResponseEntity<ApiResponse<Supplier>> createSupplier(@RequestBody SupplierRequestDto requestDto) {
+        Supplier savedSupplier = supplierService.save(requestDto);
         ApiResponse<Supplier> response = ApiResponse.<Supplier>builder()
                 .status(true)
                 .message("Supplier created successfully")

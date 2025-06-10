@@ -1,10 +1,7 @@
 package org.cosmetic.com.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.cosmetic.com.enums.OrderStatus;
 import org.cosmetic.com.enums.PaymentMethod;
 
@@ -16,6 +13,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "`order`")
@@ -36,13 +34,14 @@ public class Order {
 
     @Column(name = "order_status", nullable = false)
     @Enumerated(EnumType.STRING)
-    private OrderStatus OrderStatus;
+    private OrderStatus orderStatus;
 
 
     @Column(name = "payment_method")
     @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
 
+    private String shippingAddress;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderDetail> orderDetails;

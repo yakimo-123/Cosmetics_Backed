@@ -11,4 +11,5 @@ public interface CartService {
     void clearCart(Long userId, String sessionId);
     void deleteById(Long id);
     Optional<Cart> findByUserId(Long userId);
+    Cart getActiveCart(Long userId, String sessionId);
 }

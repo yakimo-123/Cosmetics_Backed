@@ -1,5 +1,8 @@
 package org.cosmetic.com.service.impl;
 
+import lombok.AllArgsConstructor;
+import org.cosmetic.com.dto.request.SupplierRequestDto;
+import org.cosmetic.com.mapper.SupplierMapper;
 import org.cosmetic.com.model.Supplier;
 import org.cosmetic.com.repository.SupplierRepository;
 import org.cosmetic.com.service.SupplierService;
@@ -10,10 +13,11 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@AllArgsConstructor
 public class SupplierServiceImpl implements SupplierService {
-    @Autowired
-    private SupplierRepository supplierRepository;
 
+    private final SupplierRepository supplierRepository;
+    private final SupplierMapper supplierMapper;
     @Override
     public List<Supplier> findAll() {
         return supplierRepository.findAll();
@@ -25,8 +29,9 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     @Override
-    public Supplier save(Supplier supplier) {
-        return supplierRepository.save(supplier);
+    public Supplier save(SupplierRequestDto supplier) {
+        Supplier supplierEntity = supplierMapper.toEntity(supplier);
+        return supplierRepository.save(supplierEntity);
     }
 
     @Override

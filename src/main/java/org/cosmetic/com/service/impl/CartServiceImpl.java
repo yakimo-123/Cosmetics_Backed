@@ -81,7 +81,8 @@ public class CartServiceImpl implements CartService {
         return cartRepository.findByUserId(userId);
     }
 
-    private Cart getActiveCart(Long userId, String sessionId) {
+    @Override
+    public Cart getActiveCart(Long userId, String sessionId) {
         if (userId != null) {
             return cartRepository.findByUserId(userId)
                     .orElseThrow(() -> new IllegalArgumentException("Active cart not found: " + userId));

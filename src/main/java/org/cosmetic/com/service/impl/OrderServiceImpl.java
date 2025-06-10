@@ -4,11 +4,14 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.cosmetic.com.dto.request.OrderDetailRequestDto;
 import org.cosmetic.com.dto.request.OrderRequestDto;
+import org.cosmetic.com.enums.CartStatus;
 import org.cosmetic.com.enums.OrderStatus;
+import org.cosmetic.com.enums.PaymentMethod;
 import org.cosmetic.com.mapper.OrderDetailMapper;
 import org.cosmetic.com.mapper.OrderMapper;
 import org.cosmetic.com.model.*;
 import org.cosmetic.com.repository.*;
+import org.cosmetic.com.service.CartService;
 import org.cosmetic.com.service.OrderService;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +32,8 @@ public class OrderServiceImpl implements OrderService {
     private final OrderDetailMapper orderDetailMapper;
     private final OrderDetailRepository orderDetailRepository;
     private final InventoryRepository inventoryRepository;
+    private final CartService cartService;
+    private final CartRepository cartRepository;
 
     @Override
     public List<Order> findAll() {
@@ -47,7 +52,7 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderMapper.toEntity(requestDto);
 
         // Validate user
-        User user =  userRepository.findById(requestDto.getCustomerId())
+        User user = userRepository.findById(requestDto.getCustomerId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + requestDto.getCustomerId()));
         order.setUser(user);
 
@@ -57,7 +62,7 @@ public class OrderServiceImpl implements OrderService {
         List<Long> productIds = orderDetails.stream()
                 .map(OrderDetailRequestDto::getProductId)
                 .toList();
-        Map<Long,Product> productMap = productRepository.findAllById(productIds).stream()
+        Map<Long, Product> productMap = productRepository.findAllById(productIds).stream()
                 .collect(Collectors.toMap(Product::getId, p -> p));
         Map<Long, Inventory> inventoryMap = inventoryRepository.findAllByProductIdIn(productIds).stream()
                 .collect(Collectors.toMap(i -> i.getProduct().getId(), i -> i));
@@ -99,14 +104,78 @@ public class OrderServiceImpl implements OrderService {
         inventoryRepository.saveAll(inventoryMap.values());
         orderDetailRepository.saveAll(order.getOrderDetails());
 
-        return order ;
+        return order;
     }
-
-
 
 
     @Override
     public void deleteById(Long id) {
         orderRepository.deleteById(id);
+    }
+
+    @Override
+    public Order createOrderFromCart(Long userId, String shippingAddress, PaymentMethod paymentMethod, String sessionId) {
+
+        Cart cart = cartService.getActiveCart(userId, sessionId);
+        if (cart == null) {
+            throw new IllegalArgumentException("Cart not found for userId: " + userId + " or sessionId: " + sessionId);
+        }
+
+        User user = new User();
+        user.setId(userId);
+
+        Order order = Order.builder()
+                .user(user)
+                .shippingAddress(shippingAddress)
+                .paymentMethod(paymentMethod)
+                .orderStatus(OrderStatus.PENDING)
+                .totalAmount(cart.getTotalAmount())
+                .build();
+        List<Long> productIds = cart.getCartItems().stream()
+                .map(item -> item.getProduct().getId())
+                .toList();
+        Map<Long, Product> productMap = productRepository.findAllById(productIds).stream()
+                .collect(Collectors.toMap(Product::getId, p -> p));
+        Map<Long, Inventory> inventoryMap = inventoryRepository.findAllByProductIdIn(productIds).stream()
+                .collect(Collectors.toMap(i -> i.getProduct().getId(), i -> i));
+
+
+        cart.getCartItems().forEach(item -> {
+            // Validate product
+            Product product = productMap.get(item.getProduct().getId());
+            if (product == null) {
+                throw new IllegalArgumentException("Product not found with id: " + item.getProduct().getId());
+            }
+            // Validate inventory
+            Inventory inventory = inventoryMap.get(product.getId());
+            if (inventory == null || inventory.getQuantity() < item.getQuantity()) {
+                throw new IllegalArgumentException("Insufficient inventory for product: " + product.getProductName());
+            }
+
+            OrderDetail orderDetail = OrderDetail.builder()
+                    .product(product)
+                    .quantity(item.getQuantity())
+                    .unitPrice(item.getUnitPrice())
+                    .subPrice(item.getSubPrice())
+                    .build();
+            order.addOrderDetail(orderDetail);
+
+            // Update inventory
+            inventory.setQuantity(inventory.getQuantity() - item.getQuantity());
+            // Update total price
+        });
+        order.setTotalAmount(cart.getTotalAmount());
+        // Save order and order details
+        Order savedOrder  = orderRepository.save(order);
+        orderDetailRepository.saveAll(order.getOrderDetails());
+
+        // Update inventory
+        inventoryRepository.saveAll(inventoryMap.values());
+
+        //Complete the cart
+        cart.setCartStatus(CartStatus.CONVERTED);
+        cartRepository.save(cart);
+
+        return savedOrder;
     }
 }
