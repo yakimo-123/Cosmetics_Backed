@@ -6,7 +6,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import org.cosmetic.com.enums.Role;
 import org.cosmetic.com.exception.JwtException;
+import org.cosmetic.com.security.CustomUserDetails;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -35,10 +37,10 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             if (token != null && jwtUtil.validateToken(token)) {
                 String username = jwtUtil.getUsernameFromToken(token);
                 String role = jwtUtil.getRoleFromToken(token);
-                GrantedAuthority authority = new SimpleGrantedAuthority(role);
+                UserDetails userDetails = new CustomUserDetails(username, Role.valueOf(role));
                 if (username != null) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                            username, null, List.of(authority));
+                            userDetails, null,userDetails.getAuthorities());
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             }

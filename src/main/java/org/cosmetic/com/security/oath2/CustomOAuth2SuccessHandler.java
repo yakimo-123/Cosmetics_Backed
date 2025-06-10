@@ -48,7 +48,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         String username = oauthUser.getAttribute("name");
 
         // Check if the user already exists in the database
-        User user = userRepository.findByEmail(email);
+        User user = userRepository.findByEmail(email).orElse(null);
         if (user == null) {
             // If the user does not exist, create a new user
             user = new User();

@@ -34,6 +34,7 @@ public class JwtUtil {
                     .subject(username)
                     .issueTime(new Date())
                     .claim("role", role)
+                    .claim("username", username)
                     .expirationTime(new Date(System.currentTimeMillis() + jwtExpiration))
                     .build();
             SignedJWT signedJWT = new SignedJWT(

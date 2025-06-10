@@ -3,6 +3,7 @@ package org.cosmetic.com.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import org.cosmetic.com.enums.Role;
 
@@ -35,7 +36,12 @@ public class User {
     @Column(unique = true)
     private String email;
 
+    @Pattern(
+            regexp = "^(0|\\+84)(3[2-9]|5[6|8|9]|7[0|6-9]|8[1-5]|9[0-9])[0-9]{7}$",
+            message = "Invalid Vietnam phone number"
+    )
     private String phone;
+
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
