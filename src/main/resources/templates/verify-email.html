@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Xác minh email</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f7;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            background-color: #ffffff;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .button {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .footer {
+            margin-top: 40px;
+            font-size: 12px;
+            color: #999999;
+            text-align: center;
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="logo">
+        <img src="https://yourdomain.com/logo.png" alt="Cosmetic Store" width="120">
+    </div>
+    <h2>Xin chào bạn,</h2>
+    <p>
+        Cảm ơn bạn đã đăng ký tài khoản tại <strong>Cosmetic Store</strong>.<br>
+        Vui lòng nhấn nút bên dưới để xác minh email của bạn:
+    </p>
+    <p style="text-align:center;">
+        <a th:href="${verifyUrl}" class="button">Xác minh Email</a>
+    </p>
+    <p>
+        Nếu LINK trên không hoạt động, bạn có thể sao chép và dán URL sau vào trình duyệt của mình.
+    </p>
+    <p>
+        Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này.
+    </p>
+    <div class="footer">
+        © 2025 Cosmetic Store. All rights reserved.
+    </div>
+</div>
+</body>
+</html>

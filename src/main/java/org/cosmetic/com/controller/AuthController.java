@@ -106,11 +106,11 @@ public class AuthController {
         );
     }
 
-    @PostMapping("/verify-email")
+    @GetMapping("/verify-email")
     public ResponseEntity<ApiResponse<String>> verifyEmail(
-            @RequestParam String otp
+            @RequestParam String code
     ) {
-        boolean isVerified = authenticationService.verifyEmail(otp);
+        boolean isVerified = authenticationService.verifyEmail(code);
         if (isVerified) {
             return ResponseEntity.ok(
                     ApiResponse.<String>builder()

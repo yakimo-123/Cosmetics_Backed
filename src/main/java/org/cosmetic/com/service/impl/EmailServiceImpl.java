@@ -5,19 +5,30 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cosmetic.com.service.EmailService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.io.File;
 
 @Service
 @Slf4j
-@AllArgsConstructor
 public class EmailServiceImpl implements EmailService {
 
     private final JavaMailSender mailSender;
+    private final SpringTemplateEngine templateEngine;
+
+    @Value("${spring.mail.username}")
+    private String from;
+
+    public EmailServiceImpl(JavaMailSender mailSender, SpringTemplateEngine templateEngine) {
+        this.mailSender = mailSender;
+        this.templateEngine = templateEngine;
+    }
 
 
     @Override
@@ -47,30 +58,22 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendVerificationEmail(String to, String verificationCode) {
+        Context context = new Context();
+        String verifyUrl = "http://localhost:8080/api/auth/verify-email?code=" + verificationCode;
+        context.setVariable("verifyUrl", verifyUrl);
+
+        String content = templateEngine.process("verify-email", context);
+
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("Xác minh địa chỉ email của bạn");
+            helper.setFrom(from);
+            helper.setSubject("Xác minh tài khoản Cosmetic Store");
+            helper.setText(content, true);
 
-            String verifyUrl = "http://localhost:3000/verify?code=" + verificationCode;
 
-            String content = """
-            <html>
-                <body>
-                    <h3>Chào bạn,</h3>
-                    <p>Đây là mã xác minh tài khoản của bạn:</p>
-                    <h2 style="color: #2e6c80;">%s</h2>
-                    <p>Hoặc bạn có thể nhấn vào đường dẫn bên dưới để xác minh:</p>
-                    <a href="%s">Xác minh ngay</a>
-                    <br/><br/>
-                    <p style="font-size:12px;color:#888;">Mã này sẽ hết hạn sau 5 phút.</p>
-                </body>
-            </html>
-        """.formatted(verificationCode, verifyUrl);
-
-            helper.setText(content, true); // true để gửi HTML
             mailSender.send(message);
         } catch (Exception e) {
             log.error("Error sending verification email to {}: {}", to, e.getMessage());
