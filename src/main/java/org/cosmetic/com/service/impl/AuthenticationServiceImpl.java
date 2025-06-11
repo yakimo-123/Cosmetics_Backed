@@ -80,7 +80,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             // Generate a new OTP and send it to the user's email
             String otp = otpService.generateOtpCode();
             emailService.sendVerificationEmail(user.get().getEmail(), otp);
-            otpService.saveOtp(user.get().getEmail(), otp);
+            otpService.saveOtp(otp, user.get().getEmail());
             return;
         }
         User newUser =  User.builder()
@@ -94,13 +94,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         // Send OTP to user's email
         emailService.sendVerificationEmail(newUser.getEmail(), otp);
         // Save OTP in the cache
-        otpService.saveOtp(newUser.getEmail(), otp);
+        otpService.saveOtp(otp, newUser.getEmail());
     }
 
     @Override
-    public boolean verifyEmail(String email,String verificationCode) {
+    public boolean verifyEmail(String verificationCode) {
 
-        if(!otpService.verifyOtp(email, verificationCode)) {
+        String email = otpService.getEmailByOtp(verificationCode);
+        if(email == null) {
             throw new RuntimeException("Invalid OTP");
         }
 

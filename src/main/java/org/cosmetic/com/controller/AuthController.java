@@ -4,7 +4,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.cosmetic.com.dto.request.EmailVerificationRequest;
 import org.cosmetic.com.dto.request.LoginRequestDto;
 import org.cosmetic.com.dto.request.RegisterRequestDto;
 import org.cosmetic.com.dto.response.ApiResponse;
@@ -28,7 +27,7 @@ public class AuthController {
             @Valid @RequestBody LoginRequestDto loginRequest,
             HttpServletResponse response
     ) {
-        LoginResponseDto loginResponse = authenticationService.authenticate(loginRequest,response);
+        LoginResponseDto loginResponse = authenticationService.authenticate(loginRequest, response);
         return ResponseEntity.ok(
                 ApiResponse.<LoginResponseDto>builder()
                         .status(true)
@@ -37,15 +36,16 @@ public class AuthController {
                         .build()
         );
     }
+
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<String>> logout(
-            @RequestHeader (value = "Authorization",required = false) String authorizationHeader,
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
             HttpServletResponse response
     ) {
         // Clear the refresh token cookie
         Cookie cookie = new Cookie("refreshToken", null);
         cookie.setHttpOnly(true);
-       // cookie.setSecure(true);  use this if your application is served over HTTPS
+        // cookie.setSecure(true);  use this if your application is served over HTTPS
         cookie.setPath("/");
         cookie.setMaxAge(0); // Delete cookie
         response.addCookie(cookie);
@@ -82,8 +82,8 @@ public class AuthController {
                             .build());
         }
         String username = jwtUtil.getUsernameFromToken(refreshToken);
-        Role role =Role.valueOf(jwtUtil.getRoleFromToken(refreshToken));
-        String newAccessToken = jwtUtil.generateToken(username,role);
+        Role role = Role.valueOf(jwtUtil.getRoleFromToken(refreshToken));
+        String newAccessToken = jwtUtil.generateToken(username, role);
         return ResponseEntity.ok(
                 ApiResponse.<String>builder()
                         .status(true)
@@ -108,9 +108,9 @@ public class AuthController {
 
     @PostMapping("/verify-email")
     public ResponseEntity<ApiResponse<String>> verifyEmail(
-            @RequestBody EmailVerificationRequest emailVerificationRequest
-            ) {
-        boolean isVerified = authenticationService.verifyEmail(emailVerificationRequest.getEmail(), emailVerificationRequest.getOtp());
+            @RequestParam String otp
+    ) {
+        boolean isVerified = authenticationService.verifyEmail(otp);
         if (isVerified) {
             return ResponseEntity.ok(
                     ApiResponse.<String>builder()

@@ -13,5 +13,5 @@ public interface AuthenticationService {
     void logout(String accessToken);
     void refreshToken(LoginResponseDto response);
     void register(RegisterRequestDto request);
-    boolean verifyEmail(String email,String verificationCode);
+    boolean verifyEmail(String verificationCode);
 }

@@ -17,19 +17,20 @@ public class OtpServiceImpl implements OtpService {
     private static final Duration OTP_EXPIRATION = Duration.ofMinutes(5);
 
     @Override
-    public void saveOtp(String email, String otp) {
-        redisTemplate.opsForValue().set(email, otp, OTP_EXPIRATION);
+    public void saveOtp(String otp, String email) {
+
+        redisTemplate.opsForValue().set(otp, email, OTP_EXPIRATION);
     }
 
     @Override
-    public boolean verifyOtp(String email, String inputOtp) {
-        String storedOtp = redisTemplate.opsForValue().get(email);
-        if (storedOtp != null && storedOtp.equals(inputOtp)) {
+    public String verifyOtp(String inputOtp) {
+        String email = redisTemplate.opsForValue().get(inputOtp);
+        if (email != null) {
             // Optionally, remove the OTP after successful verification
-            redisTemplate.delete(email);
-            return true;
+            redisTemplate.delete(inputOtp);
+            return email;
         }
-        return false;
+        return null;
     }
 
     @Override
