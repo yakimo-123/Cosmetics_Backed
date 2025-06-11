@@ -1,7 +1,10 @@
 package org.cosmetic.com.service.impl;
 
 import lombok.AllArgsConstructor;
+import org.cosmetic.com.dto.request.ReviewRequestDto;
 import org.cosmetic.com.enums.ReviewStatus;
+import org.cosmetic.com.mapper.ReviewMapper;
+import org.cosmetic.com.model.Reply;
 import org.cosmetic.com.model.Review;
 import org.cosmetic.com.repository.ReviewRepository;
 import org.cosmetic.com.service.ReviewService;
@@ -16,10 +19,11 @@ import java.util.List;
 public class ReviewServiceImpl implements ReviewService {
 
     private ReviewRepository reviewRepository;
+    private final ReviewMapper reviewMapper;
 
     @Override
-    public Review createReview(Review review) {
-        review.setReviewStatus(ReviewStatus.PENDING);
+    public Review createReview(ReviewRequestDto requestDto) {
+        Review review = reviewMapper.toEntity(requestDto);
         review.setCreatedAt(Instant.now());
         return reviewRepository.save(review);
     }
@@ -44,5 +48,17 @@ public class ReviewServiceImpl implements ReviewService {
         return reviewRepository.findByProductId(productId);
     }
 
-
+    @Override
+    public Review replyToReview(String reviewId, String replyContent, String userNameAdmin) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new IllegalArgumentException("Review not found with id: " + reviewId));
+        if(review.getReply() != null) {
+            throw new IllegalArgumentException("Review already has a reply");
+        }
+        // Create a new reply
+        Reply reply = new Reply(userNameAdmin, replyContent, Instant.now());
+        review.setReply(reply);
+        review.setReviewStatus(ReviewStatus.REPLIED);
+        return reviewRepository.save(review);
+    }
 }

@@ -17,6 +17,6 @@ public class Review {
     private String comment;
     private int rating;
     private Instant createdAt;
-
-    private ReviewStatus reviewStatus;
+    private ReviewStatus reviewStatus = ReviewStatus.PENDING;
+    private Reply reply;
 }
