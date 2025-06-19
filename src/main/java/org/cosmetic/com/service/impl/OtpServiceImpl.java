@@ -18,7 +18,6 @@ public class OtpServiceImpl implements OtpService {
 
     @Override
     public void saveOtp(String otp, String email) {
-
         redisTemplate.opsForValue().set(otp, email, OTP_EXPIRATION);
     }
 
@@ -43,6 +42,7 @@ public class OtpServiceImpl implements OtpService {
         return false;
     }
 
+    //Need fix
     @Override
     public void removeOtp(String email) {
         redisTemplate.delete(email);

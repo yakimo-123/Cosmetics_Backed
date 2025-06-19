@@ -1,6 +1,7 @@
 package org.cosmetic.com.service.impl;
 
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.cosmetic.com.model.ImageUrl;
 import org.cosmetic.com.repository.ImageUrlRepository;
 import org.cosmetic.com.service.ImgUrlService;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class ImgUrlServiceImpl implements ImgUrlService {
 
     private final ImageUrlRepository imageUrlRepository;
@@ -31,11 +33,8 @@ public class ImgUrlServiceImpl implements ImgUrlService {
 
     private final S3Client s3Client;
 
-    @Autowired
-    public ImgUrlServiceImpl(ImageUrlRepository imageUrlRepository, S3Client s3Client) {
-        this.imageUrlRepository = imageUrlRepository;
-        this.s3Client = s3Client;
-    }
+
+
 
     @Override
     public ImageUrl saveImageUrl(ImageUrl imageUrl) {

@@ -6,7 +6,6 @@ import org.cosmetic.com.mapper.SupplierMapper;
 import org.cosmetic.com.model.Supplier;
 import org.cosmetic.com.repository.SupplierRepository;
 import org.cosmetic.com.service.SupplierService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

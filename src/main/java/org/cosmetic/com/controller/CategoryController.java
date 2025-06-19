@@ -9,9 +9,7 @@ import org.cosmetic.com.model.Category;
 import org.cosmetic.com.service.CategoryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/categories")
@@ -26,7 +24,7 @@ public class CategoryController {
         List<Category> categories = categoryService.findAll();
         List<CategoryResponseDto> response = categories.stream()
                 .map(categoryMapper::toResponseDto)
-                .collect(Collectors.toList());
+                .toList();
         return ResponseEntity.ok(
             ApiResponse.<List<CategoryResponseDto>>builder()
                 .status(true)

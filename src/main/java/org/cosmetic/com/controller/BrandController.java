@@ -9,9 +9,7 @@ package org.cosmetic.com.controller;
     import org.cosmetic.com.service.BrandService;
     import org.springframework.http.ResponseEntity;
     import org.springframework.web.bind.annotation.*;
-
     import java.util.List;
-    import java.util.stream.Collectors;
 
     @RestController
     @RequestMapping("/api/brands")
@@ -26,7 +24,7 @@ package org.cosmetic.com.controller;
             List<Brand> brands = brandService.findAll();
             List<BrandResponseDto> response = brands.stream()
                     .map(brandMapper::toResponseDto)
-                    .collect(Collectors.toList());
+                    .toList();
             return ResponseEntity.ok(
                 ApiResponse.<List<BrandResponseDto>>builder()
                     .status(true)

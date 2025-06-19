@@ -3,12 +3,12 @@ package org.cosmetic.com.service.impl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.cosmetic.com.enums.CartStatus;
+import org.cosmetic.com.exception.ResourceNotFoundException;
 import org.cosmetic.com.model.Cart;
 import org.cosmetic.com.model.User;
 import org.cosmetic.com.repository.CartRepository;
 import org.cosmetic.com.service.CartService;
 import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -27,7 +27,7 @@ public class CartServiceImpl implements CartService {
     @Override
     public Optional<Cart> findById(Long id) {
         Cart cart = cartRepository.findById(id).orElseThrow(
-                () -> new IllegalArgumentException("Cart not found with id: " + id)
+                () -> new ResourceNotFoundException("Cart not found with id: " + id)
         );
         BigDecimal totalAmount = cart.getTotalAmount();
         cart.setTotalAmount(totalAmount);
@@ -71,7 +71,7 @@ public class CartServiceImpl implements CartService {
     @Override
     public void deleteById(Long id) {
         Cart cart = cartRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Cart not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Cart not found with id: " + id));
         cart.setCartStatus(CartStatus.DELETED);
         cartRepository.save(cart);
     }
@@ -85,10 +85,10 @@ public class CartServiceImpl implements CartService {
     public Cart getActiveCart(Long userId, String sessionId) {
         if (userId != null) {
             return cartRepository.findByUserId(userId)
-                    .orElseThrow(() -> new IllegalArgumentException("Active cart not found: " + userId));
+                    .orElseThrow(() -> new ResourceNotFoundException("Active cart not found: " + userId));
         } else {
             return cartRepository.findBySessionId(sessionId)
-                    .orElseThrow(() -> new IllegalArgumentException("Active cart not found: " + sessionId));
+                    .orElseThrow(() -> new ResourceNotFoundException("Active cart not found: " + sessionId));
         }
     }
 

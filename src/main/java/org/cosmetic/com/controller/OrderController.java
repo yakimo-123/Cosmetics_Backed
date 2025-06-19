@@ -12,9 +12,7 @@ import org.cosmetic.com.service.OrderService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -28,7 +26,7 @@ public class OrderController {
     public ResponseEntity<ApiResponse<List<OrderResponseDto>>> getAllOrders() {
         List<OrderResponseDto> orders = orderService.findAll().stream()
                 .map(orderMapper::toDto)
-                .collect(Collectors.toList());
+                .toList();
         ApiResponse<List<OrderResponseDto>> response = ApiResponse.<List<OrderResponseDto>>builder()
                 .status(true)
                 .message("Orders retrieved successfully")

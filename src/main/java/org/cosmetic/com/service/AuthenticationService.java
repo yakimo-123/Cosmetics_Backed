@@ -14,4 +14,6 @@ public interface AuthenticationService {
     void refreshToken(LoginResponseDto response);
     void register(RegisterRequestDto request);
     boolean verifyEmail(String verificationCode);
+    void  forgotPassword(String email);
+    void resendVerificationEmail(String email);
 }

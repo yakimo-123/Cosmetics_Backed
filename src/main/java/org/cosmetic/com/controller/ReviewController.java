@@ -8,6 +8,7 @@ import org.cosmetic.com.model.Review;
 import org.cosmetic.com.security.CustomUserDetails;
 import org.cosmetic.com.service.ReviewService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,6 +42,7 @@ public class ReviewController {
                 .build());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{reviewId}/status")
     public ResponseEntity<ApiResponse<Review>> updateReviewStatus(
             @PathVariable String reviewId,
@@ -63,6 +65,7 @@ public class ReviewController {
                 .build());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/reviews/{reviewId}/reply")
     public ResponseEntity<ApiResponse<Review>> replyToReview(
             @PathVariable String reviewId,

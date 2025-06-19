@@ -3,7 +3,6 @@ package org.cosmetic.com.service.impl;
 import org.cosmetic.com.model.User;
 import org.cosmetic.com.repository.UserRepository;
 import org.cosmetic.com.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,7 +10,7 @@ import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
-    @Autowired
+
     private UserRepository userRepository;
 
     @Override

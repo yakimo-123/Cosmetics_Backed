@@ -2,7 +2,6 @@ package org.cosmetic.com.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.cosmetic.com.dto.response.ApiResponse;
-import org.cosmetic.com.model.CartItem;
 import org.cosmetic.com.service.CartItemService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

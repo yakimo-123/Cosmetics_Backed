@@ -1,17 +1,18 @@
 package org.cosmetic.com.service.impl;
 
+import lombok.AllArgsConstructor;
 import org.cosmetic.com.model.OrderDetail;
 import org.cosmetic.com.repository.OrderDetailRepository;
 import org.cosmetic.com.service.OrderDetailService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@AllArgsConstructor
 public class OrderDetailServiceImpl implements OrderDetailService {
-    @Autowired
+
     private OrderDetailRepository orderDetailRepository;
 
     @Override

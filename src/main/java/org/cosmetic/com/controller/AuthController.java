@@ -129,4 +129,32 @@ public class AuthController {
                     );
         }
     }
+
+    @GetMapping("/resend-verification")
+    public ResponseEntity<ApiResponse<String>> resendVerificationEmail(
+            @RequestParam String email
+    ) {
+        authenticationService.resendVerificationEmail(email);
+        return ResponseEntity.ok(
+                ApiResponse.<String>builder()
+                        .status(true)
+                        .message("Verification email resent successfully")
+                        .data("Please check your email for the verification link")
+                        .build()
+        );
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ApiResponse<String>> forgotPassword(
+            @RequestParam String email
+    ) {
+        authenticationService.forgotPassword(email);
+        return ResponseEntity.ok(
+                ApiResponse.<String>builder()
+                        .status(true)
+                        .message("Password reset link sent successfully")
+                        .data("Please check your email for the password reset link")
+                        .build()
+        );
+    }
 }

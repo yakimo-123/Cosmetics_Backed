@@ -8,6 +8,7 @@ import org.cosmetic.com.dto.request.RegisterRequestDto;
 import org.cosmetic.com.dto.response.LoginResponseDto;
 import org.cosmetic.com.enums.Role;
 import org.cosmetic.com.exception.InvalidOtpException;
+import org.cosmetic.com.exception.ResourceNotFoundException;
 import org.cosmetic.com.model.User;
 import org.cosmetic.com.repository.UserRepository;
 import org.cosmetic.com.security.jwt.JwtUtil;
@@ -35,7 +36,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public LoginResponseDto authenticate(LoginRequestDto request, HttpServletResponse response) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Email not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Email not found"));
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("Invalid credentials");
         }
@@ -106,9 +107,31 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         user.setEnabled(true);
         userRepository.save(user);
         return true;
+    }
+
+    @Override
+    public void forgotPassword(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        String otp = otpService.generateOtpCode();
+        emailService.sendForgotPasswordEmail(user.getEmail(), otp);
+        otpService.saveOtp(otp, user.getEmail());
+    }
+
+    @Override
+    public void resendVerificationEmail(String email) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        if (user.isEnabled()) {
+            throw new RuntimeException("User already verified");
+        }
+        String otp = otpService.generateOtpCode();
+        emailService.sendVerificationEmail(user.getEmail(), otp);
+        otpService.saveOtp(otp, user.getEmail());
     }
 }
