@@ -64,26 +64,9 @@ public class AuthController {
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<ApiResponse<?>> refreshToken(@CookieValue(value = "refreshToken", required = false) String refreshToken) {
-        if (refreshToken == null) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.<String>builder()
-                            .status(false)
-                            .message("Unauthorized")
-                            .data("Refresh token is missing")
-                            .build());
-        }
-        if (!jwtUtil.validateToken(refreshToken)) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.<String>builder()
-                            .status(false)
-                            .message("Unauthorized")
-                            .data("Invalid refresh token")
-                            .build());
-        }
-        String username = jwtUtil.getUsernameFromToken(refreshToken);
-        Role role = Role.valueOf(jwtUtil.getRoleFromToken(refreshToken));
-        String newAccessToken = jwtUtil.generateToken(username, role);
+    public ResponseEntity<ApiResponse<?>> refreshToken(
+            @CookieValue(value = "refreshToken", required = false) String refreshToken) {
+        String newAccessToken = authenticationService.refreshAccessToken(refreshToken);
         return ResponseEntity.ok(
                 ApiResponse.<String>builder()
                         .status(true)
