@@ -2,9 +2,9 @@ package org.cosmetic.com.service.impl;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.cosmetic.com.exception.EmailException;
+import org.cosmetic.com.exception.AppException;
+import org.cosmetic.com.exception.ErrorCode;
 import org.cosmetic.com.service.EmailService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -36,11 +36,16 @@ public class EmailServiceImpl implements EmailService {
     @Async
     @Override
     public void sendSimpleEmail(String to, String subject, String text) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setSubject(subject);
-        message.setText(text);
-        mailSender.send(message);
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(to);
+            message.setSubject(subject);
+            message.setText(text);
+            mailSender.send(message);
+        } catch (Exception e) {
+            log.error("Error sending simple email to {}: {}", to, e.getMessage());
+            throw new AppException(ErrorCode.EMAIL_SEND_FAILED, "Không thể gửi email đơn giản");
+        }
     }
 
     @Async
@@ -55,17 +60,18 @@ public class EmailServiceImpl implements EmailService {
             helper.addAttachment(file.getName(), file);
             mailSender.send(message);
         } catch (MessagingException e) {
-            throw new EmailException("Can't send mail with attachment", e);
+            log.error("Error sending email with attachment to {}: {}", to, e.getMessage());
+            throw new AppException(ErrorCode.EMAIL_SEND_FAILED, "Không thể gửi email kèm tập tin");
         }
     }
+
 
 
     @Async
     @Override
     public void sendVerificationEmail(String to, String verificationCode) {
         Context context = new Context();
-        String verifyUrl = "http://localhost:8080/api/auth/verify-email?code=" + verificationCode;
-        context.setVariable("verifyUrl", verifyUrl);
+        context.setVariable("verificationCode", verificationCode);
 
         String content = templateEngine.process("verify-email", context);
 
@@ -78,11 +84,10 @@ public class EmailServiceImpl implements EmailService {
             helper.setSubject("Xác minh tài khoản Cosmetic Store");
             helper.setText(content, true);
 
-
             mailSender.send(message);
         } catch (Exception e) {
             log.error("Error sending verification email to {}: {}", to, e.getMessage());
-            throw new EmailException("Can't send email verification", e);
+            throw new AppException(ErrorCode.EMAIL_VERIFICATION_FAILED);
         }
     }
 
@@ -106,7 +111,7 @@ public class EmailServiceImpl implements EmailService {
             mailSender.send(message);
         } catch (Exception e) {
             log.error("Error sending forgot password email to {}: {}", to, e.getMessage());
-            throw new EmailException("Can't send forgot password email", e);
+            throw new AppException(ErrorCode.EMAIL_FORGOT_FAILED);
         }
     }
 }

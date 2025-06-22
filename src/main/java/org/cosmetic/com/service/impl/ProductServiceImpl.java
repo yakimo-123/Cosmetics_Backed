@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import org.cosmetic.com.dto.request.ProductRequestDto;
 import org.cosmetic.com.enums.ImageType;
 import org.cosmetic.com.enums.ProductStatus;
+import org.cosmetic.com.exception.AppException;
+import org.cosmetic.com.exception.ErrorCode;
 import org.cosmetic.com.mapper.ProductMapper;
 import org.cosmetic.com.model.*;
 import org.cosmetic.com.repository.*;
@@ -49,25 +51,22 @@ public class ProductServiceImpl implements ProductService {
 
         List<Category> categories = categoryRepository.findAllById(productRequestDto.getCategoryIds());
         if (categories.size() != productRequestDto.getCategoryIds().size()) {
-            throw new IllegalArgumentException("Some categories do not exist");
+            throw new AppException(ErrorCode.CATEGORY_NOT_FOUND);
         }
         product.setCategories(categories);
         // Set supplier
-        Supplier supplier = supplierRepository.findById(productRequestDto.getSupplierId()).orElseThrow(
-                () -> new IllegalArgumentException("Supplier not found with id: " + productRequestDto.getSupplierId())
-        );
+        Supplier supplier = supplierRepository.findById(productRequestDto.getSupplierId())
+                .orElseThrow(() -> new AppException(ErrorCode.SUPPLIER_NOT_FOUND));
         product.setSupplier(supplier);
         // Set brand
-        Brand brand = brandRepository.findById(productRequestDto.getBrandId()).orElseThrow(
-                () -> new IllegalArgumentException("Brand not found with id: " + productRequestDto.getBrandId())
-        );
+        Brand brand = brandRepository.findById(productRequestDto.getBrandId())
+                .orElseThrow(() -> new AppException(ErrorCode.BRAND_NOT_FOUND));
         product.setBrand(brand);
 
 
         int quantity = productRequestDto.getQuantity();
-        // Save inventory
-        if (productRequestDto.getQuantity() < 0) {
-            throw new IllegalArgumentException("Quantity cannot be negative");
+        if (quantity < 0) {
+            throw new AppException(ErrorCode.INVALID_PRODUCT_QUANTITY);
         }
         //Save product to get product id
         product = productRepository.save(product);
@@ -95,35 +94,34 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void deleteById(Long id) {
-        Product product = productRepository.findById(id).orElseThrow(
-                () -> new IllegalArgumentException("Product not found with id: " + id)
-        );
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
         product.setProductStatus(ProductStatus.DISCONTINUED);
         productRepository.save(product);
     }
 
     @Override
-    public Product update(Long id, ProductRequestDto product, List<MultipartFile> images) throws IOException {
-        Optional<Product> existingProduct = productRepository.findById(id);
-        if (existingProduct.isPresent()) {
-            Product updatedProduct = productMapper.toEntity(product);
-            updatedProduct.setId(id);
-            updatedProduct = productRepository.save(updatedProduct);
+    public Product update(Long id, ProductRequestDto productDto, List<MultipartFile> images) throws IOException {
+        productRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
-            if (images != null && !images.isEmpty()) {
-                for (MultipartFile image : images) {
-                    String imageUrlInS2 = imgUrlService.saveImageInS2(image);
-                    ImageUrl imageUrl = ImageUrl.builder()
-                            .url(imageUrlInS2)
-                            .imageType(ImageType.PRODUCT_IMAGE)
-                            .id(updatedProduct.getId())
-                            .build();
-                    imgUrlService.saveImageUrl(imageUrl);
-                }
+        Product updatedProduct = productMapper.toEntity(productDto);
+        updatedProduct.setId(id);
+
+        updatedProduct = productRepository.save(updatedProduct);
+
+        if (images != null && !images.isEmpty()) {
+            for (MultipartFile image : images) {
+                String imageUrlInS2 = imgUrlService.saveImageInS2(image);
+                ImageUrl imageUrl = ImageUrl.builder()
+                        .url(imageUrlInS2)
+                        .imageType(ImageType.PRODUCT_IMAGE)
+                        .id(updatedProduct.getId())
+                        .build();
+                imgUrlService.saveImageUrl(imageUrl);
             }
-            return updatedProduct;
         }
-        return null;
+        return updatedProduct;
     }
 
     @Override

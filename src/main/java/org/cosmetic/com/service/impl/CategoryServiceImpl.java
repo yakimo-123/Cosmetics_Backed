@@ -2,6 +2,8 @@ package org.cosmetic.com.service.impl;
 
 import lombok.AllArgsConstructor;
 import org.cosmetic.com.dto.request.CategoryRequestDto;
+import org.cosmetic.com.exception.AppException;
+import org.cosmetic.com.exception.ErrorCode;
 import org.cosmetic.com.mapper.CategoryMapper;
 import org.cosmetic.com.model.Category;
 import org.cosmetic.com.repository.CategoryRepository;
@@ -36,11 +38,18 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void deleteById(Long id) {
+        if (!categoryRepository.existsById(id)) {
+            throw new AppException(ErrorCode.CATEGORY_NOT_FOUND);
+        }
         categoryRepository.deleteById(id);
     }
 
     @Override
-    public Category update(Long id,CategoryRequestDto category) {
-        return null;
+    public Category update(Long id, CategoryRequestDto dto) {
+        Category existing = categoryRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
+
+        existing.setCategoryName(dto.getCategoryName());
+        return categoryRepository.save(existing);
     }
 }

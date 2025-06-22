@@ -1,6 +1,8 @@
 package org.cosmetic.com.service.impl;
 
 import lombok.AllArgsConstructor;
+import org.cosmetic.com.exception.AppException;
+import org.cosmetic.com.exception.ErrorCode;
 import org.cosmetic.com.service.OtpService;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -24,22 +26,26 @@ public class OtpServiceImpl implements OtpService {
     @Override
     public String verifyOtp(String inputOtp) {
         String email = redisTemplate.opsForValue().get(inputOtp);
-        if (email != null) {
-            // Optionally, remove the OTP after successful verification
-            redisTemplate.delete(inputOtp);
-            return email;
+        if (email == null) {
+            throw new AppException(ErrorCode.OTP_INVALID);
         }
-        return null;
+        redisTemplate.delete(inputOtp); // xóa OTP sau khi xác thực
+        return email;
     }
 
     @Override
     public String getEmailByOtp(String otp) {
-        return redisTemplate.opsForValue().get(otp);
+        String email = redisTemplate.opsForValue().get(otp);
+        if (email == null) {
+            throw new AppException(ErrorCode.OTP_INVALID);
+        }
+        return email;
     }
 
     @Override
-    public boolean isOtpExpired(String email) {
-        return false;
+    public boolean isOtpExpired(String otp) {
+        Boolean exists = redisTemplate.hasKey(otp);
+        return exists == null || !exists;
     }
 
     //Need fix

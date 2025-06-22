@@ -3,6 +3,8 @@ package org.cosmetic.com.service.impl;
 import lombok.AllArgsConstructor;
 import org.cosmetic.com.dto.request.ReviewRequestDto;
 import org.cosmetic.com.enums.ReviewStatus;
+import org.cosmetic.com.exception.AppException;
+import org.cosmetic.com.exception.ErrorCode;
 import org.cosmetic.com.mapper.ReviewMapper;
 import org.cosmetic.com.model.Reply;
 import org.cosmetic.com.model.Review;
@@ -40,7 +42,7 @@ public class ReviewServiceImpl implements ReviewService {
                     review.setReviewStatus(status);
                     return reviewRepository.save(review);
                 })
-                .orElseThrow(() -> new IllegalArgumentException("Review not found with id: " + reviewId));
+                .orElseThrow(() -> new AppException(ErrorCode.REVIEW_NOT_FOUND));
     }
 
     @Override
@@ -51,9 +53,10 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public Review replyToReview(String reviewId, String replyContent, String userNameAdmin) {
         Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new IllegalArgumentException("Review not found with id: " + reviewId));
-        if(review.getReply() != null) {
-            throw new IllegalArgumentException("Review already has a reply");
+                .orElseThrow(() -> new AppException(ErrorCode.REVIEW_NOT_FOUND));
+
+        if (review.getReply() != null) {
+            throw new AppException(ErrorCode.REVIEW_ALREADY_REPLIED);
         }
         // Create a new reply
         Reply reply = new Reply(userNameAdmin, replyContent, Instant.now());

@@ -6,8 +6,10 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import lombok.extern.slf4j.Slf4j;
 import org.cosmetic.com.enums.Role;
-import org.cosmetic.com.exception.JwtException;
+import org.cosmetic.com.exception.AppException;
+import org.cosmetic.com.exception.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +17,7 @@ import java.text.ParseException;
 import java.util.Date;
 
 @Component
+@Slf4j
 public class JwtUtil {
 
     @Value("${jwt.secret}")
@@ -44,7 +47,8 @@ public class JwtUtil {
             signedJWT.sign(signer);
             return signedJWT.serialize();
         } catch (Exception e) {
-            throw new RuntimeException("Error generating JWT", e);
+            log.error("Error generating JWT token: {}", e.getMessage());
+            throw new AppException(ErrorCode.JWT_GENERATION_FAILED, e.getMessage());
         }
     }
 
@@ -66,27 +70,17 @@ public class JwtUtil {
             signedJWT.sign(signer);
             return signedJWT.serialize();
         } catch (Exception e) {
-            throw new RuntimeException("Error generating refresh JWT", e);
+            log.error("Error generating refresh JWT token: {}", e.getMessage());
+            throw new AppException(ErrorCode.JWT_GENERATION_FAILED, e.getMessage());
         }
     }
 
-    public String getRoleFromToken(String token) {
-        try {
-            SignedJWT signedJWT = SignedJWT.parse(token);
-            JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
-            return claimsSet.getStringClaim("role");
-        } catch (ParseException e) {
-            return null;
-        }
+    public String getRoleFromToken(String token) throws ParseException {
+        return parseToken(token).getStringClaim("role");
     }
 
     public String getUsernameFromToken(String token) {
-        try {
-            SignedJWT signedJWT = SignedJWT.parse(token);
-            return signedJWT.getJWTClaimsSet().getSubject();
-        } catch (ParseException e) {
-            return null;
-        }
+        return parseToken(token).getSubject();
     }
 
     public boolean validateToken(String token) {
@@ -97,19 +91,17 @@ public class JwtUtil {
             Date expiration = signedJWT.getJWTClaimsSet().getExpirationTime();
 
             if (!signatureValid) {
-                throw new JwtException("Invalid JWT signature");
+                throw new AppException(ErrorCode.JWT_SIGNATURE_INVALID);
             }
-
             if (expiration == null || expiration.before(new Date())) {
-                throw new JwtException("JWT expired");
+                throw new AppException(ErrorCode.JWT_EXPIRED);
             }
-
             return true;
 
         } catch (ParseException e) {
-            throw new JwtException("Malformed JWT token", e);
+            throw new AppException(ErrorCode.JWT_MALFORMED, e.getMessage());
         } catch (JOSEException e) {
-            throw new JwtException("Error verifying JWT signature", e);
+            throw new AppException(ErrorCode.JWT_SIGNATURE_INVALID, e.getMessage());
         }
     }
 
@@ -129,5 +121,14 @@ public class JwtUtil {
         return null;
     }
 
+    // Utility to reuse parsing logic with standardized error handling
+    private JWTClaimsSet parseToken(String token) {
+        try {
+            SignedJWT signedJWT = SignedJWT.parse(token);
+            return signedJWT.getJWTClaimsSet();
+        } catch (ParseException e) {
+            throw new AppException(ErrorCode.JWT_MALFORMED, e.getMessage());
+        }
+    }
 
 }

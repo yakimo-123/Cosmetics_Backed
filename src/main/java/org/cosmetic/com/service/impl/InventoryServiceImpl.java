@@ -1,6 +1,8 @@
 package org.cosmetic.com.service.impl;
 
 import lombok.AllArgsConstructor;
+import org.cosmetic.com.exception.AppException;
+import org.cosmetic.com.exception.ErrorCode;
 import org.cosmetic.com.model.Inventory;
 import org.cosmetic.com.model.Product;
 import org.cosmetic.com.repository.InventoryRepository;
@@ -34,13 +36,16 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     public void deleteById(Long id) {
+        if (!inventoryRepository.existsById(id)) {
+            throw new AppException(ErrorCode.INVENTORY_NOT_FOUND);
+        }
         inventoryRepository.deleteById(id);
     }
 
     @Override
     public Inventory getOrCreateInventory(Long productId, int quantity) {
         if (productId == null) {
-            throw new IllegalArgumentException("Product ID must not be null");
+            throw new AppException(ErrorCode.PRODUCT_ID_REQUIRED);
         }
         Inventory inventory = inventoryRepository.findByProduct_Id(productId);
 
@@ -49,9 +54,8 @@ public class InventoryServiceImpl implements InventoryService {
             return inventoryRepository.save(inventory);
         }
 
-        Product product = productRepository.findById(productId).orElseThrow(
-                () -> new IllegalArgumentException("Product not found with id: " + productId)
-        );
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
         inventory =Inventory.builder()
                 .product(product)

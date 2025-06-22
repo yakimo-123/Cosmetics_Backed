@@ -1,11 +1,9 @@
 package org.cosmetic.com.service.impl;
 
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.cosmetic.com.model.ImageUrl;
 import org.cosmetic.com.repository.ImageUrlRepository;
 import org.cosmetic.com.service.ImgUrlService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;

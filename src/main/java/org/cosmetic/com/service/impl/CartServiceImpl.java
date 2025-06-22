@@ -3,7 +3,8 @@ package org.cosmetic.com.service.impl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.cosmetic.com.enums.CartStatus;
-import org.cosmetic.com.exception.ResourceNotFoundException;
+import org.cosmetic.com.exception.AppException;
+import org.cosmetic.com.exception.ErrorCode;
 import org.cosmetic.com.model.Cart;
 import org.cosmetic.com.model.User;
 import org.cosmetic.com.repository.CartRepository;
@@ -26,9 +27,8 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Optional<Cart> findById(Long id) {
-        Cart cart = cartRepository.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException("Cart not found with id: " + id)
-        );
+        Cart cart = cartRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.CART_NOT_FOUND));
         BigDecimal totalAmount = cart.getTotalAmount();
         cart.setTotalAmount(totalAmount);
         return cartRepository.findById(id);
@@ -71,7 +71,7 @@ public class CartServiceImpl implements CartService {
     @Override
     public void deleteById(Long id) {
         Cart cart = cartRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Cart not found with id: " + id));
+                .orElseThrow(() -> new AppException(ErrorCode.CART_NOT_FOUND));
         cart.setCartStatus(CartStatus.DELETED);
         cartRepository.save(cart);
     }
@@ -85,11 +85,10 @@ public class CartServiceImpl implements CartService {
     public Cart getActiveCart(Long userId, String sessionId) {
         if (userId != null) {
             return cartRepository.findByUserId(userId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Active cart not found: " + userId));
+                    .orElseThrow(() -> new AppException(ErrorCode.ACTIVE_CART_NOT_FOUND));
         } else {
             return cartRepository.findBySessionId(sessionId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Active cart not found: " + sessionId));
+                    .orElseThrow(() -> new AppException(ErrorCode.ACTIVE_CART_NOT_FOUND));
         }
     }
-
 }

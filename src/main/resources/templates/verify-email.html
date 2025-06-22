@@ -62,15 +62,8 @@
     <h2><span class="emoji">👋</span> Xin chào bạn,</h2>
     <p>
         Cảm ơn bạn đã đăng ký tài khoản tại <strong>Cosmetic Store</strong>!<br>
-        Vui lòng nhấn nút bên dưới để xác minh địa chỉ email của bạn:
     </p>
-    <p style="text-align:center;">
-        <a th:href="${verifyUrl}" class="button">✅ Xác minh Email</a>
-    </p>
-    <p style="text-align:center; margin-top: 20px;">
-        <strong>🔗 Hoặc truy cập liên kết sau:</strong>
-    </p>
-    <p class="verify-link" th:text="${verifyUrl}"></p>
+    <p style="text-align:center;">${verificationCode}</p>
     <p>
         Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này. Không cần thực hiện thêm hành động nào.
     </p>

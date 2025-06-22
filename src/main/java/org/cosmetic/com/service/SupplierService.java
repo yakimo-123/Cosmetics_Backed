@@ -9,7 +9,7 @@ import java.util.Optional;
 public interface SupplierService {
     List<Supplier> findAll();
 
-    Optional<Supplier> findById(Long id);
+    Supplier findById(Long id);
 
     Supplier save(SupplierRequestDto supplier);
 

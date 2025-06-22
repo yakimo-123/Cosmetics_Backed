@@ -7,6 +7,8 @@ import org.cosmetic.com.dto.request.OrderRequestDto;
 import org.cosmetic.com.enums.CartStatus;
 import org.cosmetic.com.enums.OrderStatus;
 import org.cosmetic.com.enums.PaymentMethod;
+import org.cosmetic.com.exception.AppException;
+import org.cosmetic.com.exception.ErrorCode;
 import org.cosmetic.com.mapper.OrderDetailMapper;
 import org.cosmetic.com.mapper.OrderMapper;
 import org.cosmetic.com.model.*;
@@ -53,7 +55,7 @@ public class OrderServiceImpl implements OrderService {
 
         // Validate user
         User user = userRepository.findById(requestDto.getCustomerId())
-                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + requestDto.getCustomerId()));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         order.setUser(user);
 
         BigDecimal totalPrice = BigDecimal.ZERO;
@@ -73,12 +75,14 @@ public class OrderServiceImpl implements OrderService {
             // Validate product
             Product product = productMap.get(orderDetail.getProductId());
             if (product == null) {
-                throw new IllegalArgumentException("Product not found with id: " + orderDetail.getProductId());
+                throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
             }
+
             // Validate inventory
             Inventory inventory = inventoryMap.get(product.getId());
-            if (inventory == null || inventory.getQuantity() < orderDetail.getQuantity()) {
-                throw new IllegalArgumentException("Insufficient inventory for product: " + product.getProductName());
+            if (inventory == null || inventory.getQuantity() < quantity) {
+                throw new AppException(ErrorCode.INSUFFICIENT_INVENTORY,
+                        "Sản phẩm '" + product.getProductName() + "' không đủ tồn kho.");
             }
 
 
@@ -110,6 +114,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public void deleteById(Long id) {
+        if (!orderRepository.existsById(id)) {
+            throw new AppException(ErrorCode.ORDER_NOT_FOUND);
+        }
         orderRepository.deleteById(id);
     }
 
@@ -118,8 +125,9 @@ public class OrderServiceImpl implements OrderService {
 
         Cart cart = cartService.getActiveCart(userId, sessionId);
         if (cart == null) {
-            throw new IllegalArgumentException("Cart not found for userId: " + userId + " or sessionId: " + sessionId);
+            throw new AppException(ErrorCode.CART_NOT_FOUND);
         }
+
 
         User user = new User();
         user.setId(userId);
@@ -144,12 +152,14 @@ public class OrderServiceImpl implements OrderService {
             // Validate product
             Product product = productMap.get(item.getProduct().getId());
             if (product == null) {
-                throw new IllegalArgumentException("Product not found with id: " + item.getProduct().getId());
+                throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
             }
+
             // Validate inventory
             Inventory inventory = inventoryMap.get(product.getId());
             if (inventory == null || inventory.getQuantity() < item.getQuantity()) {
-                throw new IllegalArgumentException("Insufficient inventory for product: " + product.getProductName());
+                throw new AppException(ErrorCode.INSUFFICIENT_INVENTORY,
+                        "Sản phẩm '" + product.getProductName() + "' không đủ tồn kho.");
             }
 
             OrderDetail orderDetail = OrderDetail.builder()

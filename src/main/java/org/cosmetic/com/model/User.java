@@ -41,7 +41,7 @@ public class User {
     )
     private String phone;
 
-
+    private String address;
     private boolean enabled =false;
 
     @Enumerated(EnumType.STRING)

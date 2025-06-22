@@ -3,6 +3,8 @@ package org.cosmetic.com.controller;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.cosmetic.com.dto.response.ApiResponse;
+import org.cosmetic.com.dto.response.UserResponseDto;
+import org.cosmetic.com.mapper.UserMapper;
 import org.cosmetic.com.model.User;
 import org.cosmetic.com.security.CustomUserDetails;
 import org.cosmetic.com.service.UserService;
@@ -12,6 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
@@ -20,38 +23,30 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final UserMapper userMapper;
 
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public ResponseEntity<ApiResponse<List<User>>> getAllUsers() {
+    public ResponseEntity<ApiResponse<List<UserResponseDto>>> getAllUsers() {
         List<User> users = userService.findAll();
         return ResponseEntity.ok(
-                ApiResponse.<List<User>>builder()
+                ApiResponse.<List<UserResponseDto>>builder()
                         .status(true)
                         .message("Fetched all users")
-                        .data(users)
+                        .data(users.stream().map(userMapper::toDto).toList())
                         .build()
         );
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<User>> getUserById(@PathVariable Long id) {
-        return userService.findById(id)
-                .map(user -> ResponseEntity.ok(
-                        ApiResponse.<User>builder()
-                                .status(true)
-                                .message("User found")
-                                .data(user)
-                                .build()
-                ))
-                .orElse(ResponseEntity.status(404).body(
-                        ApiResponse.<User>builder()
-                                .status(false)
-                                .message("User not found")
-                                .data(null)
-                                .build()
-                ));
+    public ResponseEntity<ApiResponse<UserResponseDto>> getUserById(@PathVariable Long id) {
+        User user = userService.findById(id);
+        return ResponseEntity.ok(ApiResponse.<UserResponseDto>builder()
+                .status(true)
+                .message("User found")
+                .data(userMapper.toDto(user))
+                .build());
     }
 
     @GetMapping("/my-profile")
@@ -59,9 +54,7 @@ public class UserController {
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         String username = userDetails.getUsername();
-        User user = userService.findByUsername(username).orElseThrow(
-                () -> new IllegalArgumentException("User not found"
-        ));
+        User user = userService.findByUsername(username);
         return ResponseEntity.ok(ApiResponse.<User>builder()
                 .status(true)
                 .message("User found")
@@ -84,25 +77,7 @@ public class UserController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<User>> updateUser(@PathVariable Long id, @RequestBody User user) {
-        return userService.findById(id)
-                .map(existing -> {
-                    user.setId(id);
-                    User updated = userService.save(user);
-                    return ResponseEntity.ok(
-                            ApiResponse.<User>builder()
-                                    .status(true)
-                                    .message("User updated")
-                                    .data(updated)
-                                    .build()
-                    );
-                })
-                .orElse(ResponseEntity.status(404).body(
-                        ApiResponse.<User>builder()
-                                .status(false)
-                                .message("User not found")
-                                .data(null)
-                                .build()
-                ));
+        return null;
     }
 
     @PreAuthorize("hasRole('ADMIN')")

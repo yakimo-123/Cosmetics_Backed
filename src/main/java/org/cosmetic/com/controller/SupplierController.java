@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 
 @AllArgsConstructor
@@ -32,22 +31,13 @@ public class SupplierController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<Supplier>> getSupplierById(@PathVariable Long id) {
-        Optional<Supplier> supplier = supplierService.findById(id);
-        if (supplier.isPresent()) {
-            ApiResponse<Supplier> response = ApiResponse.<Supplier>builder()
-                    .status(true)
-                    .message("Supplier found")
-                    .data(supplier.get())
-                    .build();
-            return ResponseEntity.ok(response);
-        } else {
-            ApiResponse<Supplier> response = ApiResponse.<Supplier>builder()
-                    .status(false)
-                    .message("Supplier not found")
-                    .data(null)
-                    .build();
-            return ResponseEntity.status(404).body(response);
-        }
+        Supplier supplier = supplierService.findById(id);
+        ApiResponse<Supplier> response = ApiResponse.<Supplier>builder()
+                .status(true)
+                .message("Supplier found")
+                .data(supplier)
+                .build();
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping

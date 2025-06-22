@@ -5,47 +5,58 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.cosmetic.com.enums.Role;
-import org.cosmetic.com.exception.JwtException;
+import org.cosmetic.com.exception.AppException;
+import org.cosmetic.com.exception.ErrorCode;
 import org.cosmetic.com.security.CustomUserDetails;
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
 import java.io.IOException;
-import java.util.List;
 
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class AuthTokenFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
 
+    String[] WHITE_LIST_URL = {
+            "/api/auth/"};
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        // Skip filtering for whitelisted URLs
+        String requestURI = request.getRequestURI();
+        for (String url : WHITE_LIST_URL) {
+            if (requestURI.startsWith(url)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+        }
         try {
-            String token = jwtUtil.getTokenFromHeader(request.getHeader(HttpHeaders.AUTHORIZATION));
+            String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+            String token = jwtUtil.getTokenFromHeader(authHeader);
+
             if (token != null && jwtUtil.validateToken(token)) {
                 String username = jwtUtil.getUsernameFromToken(token);
                 String role = jwtUtil.getRoleFromToken(token);
                 UserDetails userDetails = new CustomUserDetails(username, Role.valueOf(role));
                 if (username != null) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                            userDetails, null,userDetails.getAuthorities());
+                            userDetails, null, userDetails.getAuthorities());
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             }
-        } catch (JwtException ex) {
-            throw new BadCredentialsException("JWT Error: " + ex.getMessage(), ex);
+        } catch (AppException ex) {
+            throw ex; // đã chuẩn
+        } catch (IllegalArgumentException e) {
+            throw new AppException(ErrorCode.JWT_MALFORMED, "Invalid role in token");
+        } catch (Exception e) {
+            throw new AppException(ErrorCode.JWT_MALFORMED, "Token parsing failed", e);
         }
         filterChain.doFilter(request, response);
     }

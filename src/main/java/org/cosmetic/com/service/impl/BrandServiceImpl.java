@@ -2,6 +2,8 @@ package org.cosmetic.com.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.cosmetic.com.dto.request.BrandRequestDto;
+import org.cosmetic.com.exception.AppException;
+import org.cosmetic.com.exception.ErrorCode;
 import org.cosmetic.com.mapper.BrandMapper;
 import org.cosmetic.com.model.Brand;
 import org.cosmetic.com.repository.BrandRepository;
@@ -36,7 +38,7 @@ public class BrandServiceImpl implements BrandService {
     @Override
     public Brand update(Long id, BrandRequestDto dto) {
         Brand brand = brandRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Brand not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.BRAND_NOT_FOUND));
         brand.setName(dto.getName());
         return brandRepository.save(brand);
     }

@@ -1,7 +1,8 @@
 package org.cosmetic.com.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.cosmetic.com.exception.ResourceNotFoundException;
+import org.cosmetic.com.exception.AppException;
+import org.cosmetic.com.exception.ErrorCode;
 import org.cosmetic.com.model.Cart;
 import org.cosmetic.com.model.CartItem;
 import org.cosmetic.com.model.Product;
@@ -24,10 +25,10 @@ public class CartItemServiceImpl implements CartItemService {
     @Override
     public void addItemToCart(Long cartId, Long productId, int quantity) {
         Cart cart = cartRepository.findById(cartId)
-                .orElseThrow(() -> new ResourceNotFoundException(CART_NOT_FOUND + cartId));
-        Product product = productService.findById(productId).orElseThrow(
-                () -> new ResourceNotFoundException("Product not found with id: " + productId)
-        );
+                .orElseThrow(() -> new AppException(ErrorCode.CART_NOT_FOUND));
+
+        Product product = productService.findById(productId)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
         CartItem cartItem = cart.getCartItems()
                 .stream()
                 .filter(item -> item.getProduct().getId().equals(productId))
@@ -49,7 +50,8 @@ public class CartItemServiceImpl implements CartItemService {
     @Override
     public void removeItemFromCart(Long cartId, Long productId) {
         Cart cart = cartRepository.findById(cartId)
-                .orElseThrow(() -> new IllegalArgumentException(CART_NOT_FOUND + cartId));
+                .orElseThrow(() -> new AppException(ErrorCode.CART_NOT_FOUND));
+
         CartItem cartItem = getCartItem(cartId, productId);
         cart.removeCartItem(cartItem);
         cartRepository.save(cart);
@@ -58,13 +60,17 @@ public class CartItemServiceImpl implements CartItemService {
     @Override
     public void updateItemQuantity(Long cartId, Long productId, int quantity) {
         Cart cart = cartRepository.findById(cartId)
-                .orElseThrow(() -> new IllegalArgumentException(CART_NOT_FOUND + cartId));
+                .orElseThrow(() -> new AppException(ErrorCode.CART_NOT_FOUND));
+
         cart.getCartItems().stream()
                 .filter(item -> item.getProduct().getId().equals(productId))
                 .findFirst()
-                .ifPresent(cartItem -> {
+                .ifPresentOrElse(cartItem -> {
                     cartItem.setQuantity(quantity);
                     cartItem.updateSubPrice();
+                },
+                () -> {
+                    throw new AppException(ErrorCode.CART_ITEM_NOT_FOUND);
                 });
         // Update the cart total amount
         BigDecimal totalAmount = cart.getCartItems().stream()
@@ -75,11 +81,11 @@ public class CartItemServiceImpl implements CartItemService {
     }
 
     private CartItem getCartItem(Long cartId, Long productId) {
-        Cart cart = cartRepository.findById(cartId).orElseThrow(
-                () -> new IllegalArgumentException(CART_NOT_FOUND+ cartId));
+        Cart cart = cartRepository.findById(cartId)
+                .orElseThrow(() -> new AppException(ErrorCode.CART_NOT_FOUND));
         return  cart.getCartItems()
                 .stream()
                 .filter(item -> item.getProduct().getId().equals(productId))
-                .findFirst().orElseThrow(() -> new IllegalArgumentException("Item not found"));
+                .findFirst().orElseThrow(() ->  new AppException(ErrorCode.CART_ITEM_NOT_FOUND));
     }
 }

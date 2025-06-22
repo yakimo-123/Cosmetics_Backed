@@ -2,14 +2,14 @@ package org.cosmetic.com.service.impl;
 
 import lombok.AllArgsConstructor;
 import org.cosmetic.com.dto.request.SupplierRequestDto;
+import org.cosmetic.com.exception.AppException;
+import org.cosmetic.com.exception.ErrorCode;
 import org.cosmetic.com.mapper.SupplierMapper;
 import org.cosmetic.com.model.Supplier;
 import org.cosmetic.com.repository.SupplierRepository;
 import org.cosmetic.com.service.SupplierService;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -23,9 +23,10 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     @Override
-    public Optional<Supplier> findById(Long id) {
-        return supplierRepository.findById(id);
+    public Supplier findById(Long id) {
+        return supplierRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.SUPPLIER_NOT_FOUND));
     }
+
 
     @Override
     public Supplier save(SupplierRequestDto supplier) {

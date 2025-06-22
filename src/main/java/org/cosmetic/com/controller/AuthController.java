@@ -8,7 +8,6 @@ import org.cosmetic.com.dto.request.LoginRequestDto;
 import org.cosmetic.com.dto.request.RegisterRequestDto;
 import org.cosmetic.com.dto.response.ApiResponse;
 import org.cosmetic.com.dto.response.LoginResponseDto;
-import org.cosmetic.com.enums.Role;
 import org.cosmetic.com.security.jwt.JwtUtil;
 import org.cosmetic.com.service.AuthenticationService;
 import org.springframework.http.ResponseEntity;

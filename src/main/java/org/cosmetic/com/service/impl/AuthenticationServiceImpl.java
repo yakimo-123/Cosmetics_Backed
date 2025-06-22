@@ -35,9 +35,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public LoginResponseDto authenticate(LoginRequestDto request, HttpServletResponse response) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new EmailException("Email not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new InvalidCredentialsException("Invalid credentials");
+            throw new AppException(ErrorCode.INVALID_CREDENTIALS);
         }
         Cookie cookie = new Cookie("refreshToken", jwtUtil.generateRefreshToken(user.getUsername(), user.getRole()));
         cookie.setHttpOnly(true);
@@ -57,7 +58,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         // This could involve removing it from a cache or database if you're tracking active sessions
         // For stateless JWT, you might not need to do anything here
         if (accessToken == null || accessToken.isEmpty()) {
-            throw new InvalidTokenException("Invalid access token");
+            throw new AppException(ErrorCode.INVALID_ACCESS_TOKEN);
         }
         // Optionally, you can log the logout action or perform any other cleanup
 
@@ -66,12 +67,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public String refreshAccessToken(String refreshToken) {
         if (refreshToken == null || refreshToken.isEmpty()) {
-            throw new InvalidTokenException("Invalid refresh token");
+            throw new AppException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
         // Validate the refresh token and generate a new access token
         String username = jwtUtil.getUsernameFromToken(refreshToken);
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         return jwtUtil.generateToken(user.getUsername(), user.getRole());
     }
 
@@ -79,8 +80,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public void register(RegisterRequestDto request) {
         Optional<User> user = userRepository.findByEmail(request.getEmail());
         // Check if user already exists
-        if(user.isPresent() && user.get().isEnabled()) {
-            throw new EmailException("Email already exists");
+        if (user.isPresent() && user.get().isEnabled()) {
+            throw new AppException(ErrorCode.EMAIL_ALREADY_EXISTS);
         }
         // If user exists but is not enabled
         if(user.isPresent()) {
@@ -90,6 +91,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             return;
         }
         User newUser =  User.builder()
+                .fullname(removePrefix(request.getEmail()))
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER)
@@ -107,12 +109,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public boolean verifyEmail(String verificationCode) {
 
         String email = otpService.getEmailByOtp(verificationCode);
-        if(email == null) {
-            throw new InvalidOtpException("Invalid OTP");
+        if (email == null) {
+            throw new AppException(ErrorCode.INVALID_OTP);
         }
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         user.setEnabled(true);
         userRepository.save(user);
         return true;
@@ -121,7 +123,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public void forgotPassword(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         String otp = otpService.generateOtpCode();
         emailService.sendForgotPasswordEmail(user.getEmail(), otp);
         otpService.saveOtp(otp, user.getEmail());
@@ -129,14 +131,21 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public void resendVerificationEmail(String email) {
-
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
         if (user.isEnabled()) {
-            throw new UserAlreadyVerifiedException("User already verified");
+            throw new AppException(ErrorCode.USER_ALREADY_VERIFIED);
         }
         String otp = otpService.generateOtpCode();
         emailService.sendVerificationEmail(user.getEmail(), otp);
         otpService.saveOtp(otp, user.getEmail());
+    }
+
+    private String removePrefix(String email) {
+        if (email == null || !email.contains("@")) {
+            throw new AppException(ErrorCode.EMAIL_INVALID_FORMAT);
+        }
+        return email.substring(0, email.indexOf('@'));
     }
 }

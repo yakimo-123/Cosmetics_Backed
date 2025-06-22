@@ -59,33 +59,12 @@ public class GlobalExceptionHandler {
     }
 
     // --- Custom Application Exceptions ---
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ApiResponse<Object>> handleResourceNotFound(ResourceNotFoundException ex) {
-        return buildResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
+    @ExceptionHandler(AppException.class)
+    public ResponseEntity<ApiResponse<Object>> handleAppException(AppException ex) {
+        ErrorCode ec = ex.getErrorCode();
+        log.warn("AppException: {}", ex.getMessage());
+        return buildResponse(ec.getCode(), ex.getMessage(), ec.getStatus());
     }
-
-    @ExceptionHandler(EmailException.class)
-    public ResponseEntity<ApiResponse<Object>> handleEmailException(EmailException ex) {
-        return buildResponse("Email error: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @ExceptionHandler(AccountAlreadyVerifiedException.class)
-    public ResponseEntity<ApiResponse<Object>> handleAccountAlreadyVerified(AccountAlreadyVerifiedException ex) {
-        return buildResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
-    }
-    @ExceptionHandler(InvalidCredentialsException.class)
-    public ResponseEntity<ApiResponse<Object>> handleInvalidCredentials(InvalidCredentialsException ex) {
-        return buildResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED);
-    }
-    @ExceptionHandler(InvalidTokenException.class)
-    public ResponseEntity<ApiResponse<Object>> handleInvalidToken(InvalidTokenException ex) {
-        return buildResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED);
-    }
-    @ExceptionHandler(UserAlreadyVerifiedException.class)
-    public ResponseEntity<ApiResponse<Object>> handleUserAlreadyVerified(UserAlreadyVerifiedException ex) {
-        return buildResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
-    }
-
 
     // --- Validation ---
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -104,5 +83,15 @@ public class GlobalExceptionHandler {
                 .data(null)
                 .build();
         return new ResponseEntity<>(response, status);
+    }
+
+    private ResponseEntity<ApiResponse<Object>> buildResponse(int code, String message, HttpStatus status) {
+        ApiResponse<Object> body = ApiResponse.<Object>builder()
+                .status(false)
+                .code(code)        // <-- nhớ có field code trong ApiResponse
+                .message(message)
+                .data(null)
+                .build();
+        return new ResponseEntity<>(body, status);
     }
 }
