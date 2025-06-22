@@ -35,9 +35,25 @@ public class Cart {
 
     private BigDecimal totalAmount = BigDecimal.ZERO;
 
-    public void addCartItem(CartItem cartItem) {
-        this.cartItems.add(cartItem);
-        cartItem.setCart(this);
+    public void addCartItem(CartItem newItem) {
+        if(cartItems == null) {
+            cartItems = new ArrayList<>();
+        }
+        for (CartItem existingItem : cartItems) {
+            if (existingItem.getProduct().getId().equals(newItem.getProduct().getId())) {
+                // Nếu đã có sản phẩm → tăng số lượng và cập nhật subPrice
+                int updatedQuantity = existingItem.getQuantity() + newItem.getQuantity();
+                existingItem.setQuantity(updatedQuantity);
+                existingItem.updateSubPrice();
+                updateTotalAmount();
+                return;
+            }
+        }
+
+        // Nếu chưa có → thêm mới
+        newItem.setCart(this);
+        newItem.updateSubPrice();
+        cartItems.add(newItem);
         updateTotalAmount();
     }
 

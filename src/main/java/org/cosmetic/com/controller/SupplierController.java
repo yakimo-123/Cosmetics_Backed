@@ -3,12 +3,15 @@ package org.cosmetic.com.controller;
 import lombok.AllArgsConstructor;
 import org.cosmetic.com.dto.request.SupplierRequestDto;
 import org.cosmetic.com.dto.response.ApiResponse;
+import org.cosmetic.com.dto.response.SupplierResponseDto;
+import org.cosmetic.com.mapper.SupplierMapper;
 import org.cosmetic.com.model.Supplier;
 import org.cosmetic.com.service.SupplierService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @AllArgsConstructor
@@ -17,14 +20,16 @@ import java.util.List;
 public class SupplierController {
 
     private final SupplierService supplierService;
+    private final SupplierMapper supplierMapper;
+
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<Supplier>>> getAllSuppliers() {
+    public ResponseEntity<ApiResponse<List<SupplierResponseDto>>> getAllSuppliers() {
         List<Supplier> suppliers = supplierService.findAll();
-        ApiResponse<List<Supplier>> response = ApiResponse.<List<Supplier>>builder()
+        ApiResponse<List<SupplierResponseDto>> response = ApiResponse.<List<SupplierResponseDto>>builder()
                 .status(true)
                 .message("Suppliers fetched successfully")
-                .data(suppliers)
+                .data(suppliers.stream().map(supplierMapper::toDto).toList())
                 .build();
         return ResponseEntity.ok(response);
     }

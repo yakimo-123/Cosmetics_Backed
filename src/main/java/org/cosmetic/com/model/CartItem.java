@@ -28,22 +28,20 @@ public class CartItem {
 
     private Integer quantity;
 
-    private BigDecimal price;
+    private BigDecimal price = BigDecimal.ZERO;
 
-    private BigDecimal subPrice;
+    private BigDecimal subPrice = BigDecimal.ZERO;
 
-    private BigDecimal unitPrice;
+    private BigDecimal unitPrice = BigDecimal.ZERO;
 
 
     public void updateSubPrice() {
         if (product != null && price != null && quantity != null) {
-            this.subPrice = price.multiply(BigDecimal.valueOf(quantity));
+            this.subPrice = unitPrice.multiply(BigDecimal.valueOf(quantity));
         } else {
             this.subPrice = BigDecimal.ZERO;
         }
     }
-
-
 
 
 }

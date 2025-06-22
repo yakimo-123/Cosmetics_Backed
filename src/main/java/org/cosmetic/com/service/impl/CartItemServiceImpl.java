@@ -17,7 +17,6 @@ import java.math.BigDecimal;
 @RequiredArgsConstructor
 public class CartItemServiceImpl implements CartItemService {
 
-    private static final String CART_NOT_FOUND = "Cart not found with id: ";
     private final CartItemRepository cartItemRepository;
     private final ProductService productService;
     private final CartRepository cartRepository;
@@ -29,22 +28,15 @@ public class CartItemServiceImpl implements CartItemService {
 
         Product product = productService.findById(productId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
-        CartItem cartItem = cart.getCartItems()
-                .stream()
-                .filter(item -> item.getProduct().getId().equals(productId))
-                .findFirst().orElse(new CartItem());
-        if (cartItem.getId() == null) {
-            cartItem.setCart(cart);
-            cartItem.setProduct(product);
-            cartItem.setQuantity(quantity);
-            cartItem.setUnitPrice(product.getPrice());
-        }else {
-            cartItem.setQuantity(cartItem.getQuantity() + quantity);
-        }
-        cartItem.updateSubPrice();
-        cart.addCartItem(cartItem);
-        cartItemRepository.save(cartItem);
-        cartRepository.save(cart);
+        // tạo CartItem “thô” (chỉ chứa product & quantity)
+        CartItem item = new CartItem();
+        item.setProduct(product);
+        item.setQuantity(quantity);
+        item.setUnitPrice(product.getPrice());
+
+        cart.addCartItem(item);     // Cart lo xử lí gộp & subPrice
+
+        cartRepository.save(cart);  // do CascadeType.ALL → CartItem tự lưu
     }
 
     @Override
