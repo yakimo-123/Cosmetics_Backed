@@ -4,8 +4,10 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.cosmetic.com.enums.OrderStatus;
 import org.cosmetic.com.enums.PaymentMethod;
 
@@ -13,6 +15,8 @@ import java.util.List;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class OrderRequestDto {
     @NotEmpty(message = "Order details cannot be empty")
     @Size(min = 1, message = "Order must contain at least one item")

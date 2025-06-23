@@ -19,6 +19,7 @@ public class RegisterRequestDto {
     @NotBlank(message = "Password is required")
     private String password;
 
+    private String fullName;
 
     // Add more fields if needed (e.g., fullName, phone, etc.)
 }
