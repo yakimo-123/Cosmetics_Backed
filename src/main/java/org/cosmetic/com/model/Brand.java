@@ -19,6 +19,10 @@ public class Brand {
     @Column(nullable = false, unique = true)
     private String name;
 
+    private String description;
+
+    private String imageUrl;
+
     @OneToMany(mappedBy = "brand")
     private List<Product> products;
 }

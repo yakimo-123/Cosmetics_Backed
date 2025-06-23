@@ -5,6 +5,7 @@ import org.cosmetic.com.exception.AppException;
 import org.cosmetic.com.model.Cart;
 import org.cosmetic.com.model.CartItem;
 import org.cosmetic.com.repository.CartRepository;
+import org.cosmetic.com.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -26,14 +28,17 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class CartServiceImplTest {
 
-    @Mock
+    @MockitoBean
     private CartRepository cartRepository;
+
+    @MockitoBean
+    private UserRepository userRepository;
 
     private CartServiceImpl cartService;
 
     @BeforeEach
     void setUp() {
-        cartService = new CartServiceImpl(cartRepository);
+        cartService = new CartServiceImpl(cartRepository, userRepository);
     }
 
     @Nested
@@ -104,11 +109,11 @@ class CartServiceImplTest {
             Cart existingCart = new Cart();
             existingCart.setCartStatus(CartStatus.ACTIVE);
 
-            when(cartRepository.findByUserIdAndCartStatus(userId, CartStatus.ACTIVE))
+            when(cartRepository.findByUser_IdAndCartStatus(userId, CartStatus.ACTIVE))
                     .thenReturn(Optional.of(existingCart));
 
             // When
-            Cart result = cartService.getOrCreateCart(userId, null);
+            Cart result = cartService.getOrCreateCart(userId);
 
             // Then
             assertNotNull(result);
@@ -120,12 +125,12 @@ class CartServiceImplTest {
         void shouldCreateNewCartForUser() {
             // Given
             Long userId = 1L;
-            when(cartRepository.findByUserIdAndCartStatus(userId, CartStatus.ACTIVE))
+            when(cartRepository.findByUser_IdAndCartStatus(userId, CartStatus.ACTIVE))
                     .thenReturn(Optional.empty());
             when(cartRepository.save(any(Cart.class))).thenAnswer(i -> i.getArguments()[0]);
 
             // When
-            Cart result = cartService.getOrCreateCart(userId, null);
+            Cart result = cartService.getOrCreateCart(userId);
 
             // Then
             assertNotNull(result);
@@ -135,24 +140,7 @@ class CartServiceImplTest {
             verify(cartRepository).save(any(Cart.class));
         }
 
-        @Test
-        @DisplayName("Should return existing cart for session")
-        void shouldReturnExistingCartForSession() {
-            // Given
-            String sessionId = "session123";
-            Cart existingCart = new Cart();
-            existingCart.setCartStatus(CartStatus.ACTIVE);
 
-            when(cartRepository.findBySessionIdAndCartStatus(sessionId, CartStatus.ACTIVE))
-                    .thenReturn(Optional.of(existingCart));
-
-            // When
-            Cart result = cartService.getOrCreateCart(null, sessionId);
-
-            // Then
-            assertNotNull(result);
-            verify(cartRepository, never()).save(any(Cart.class));
-        }
     }
 
     @Nested
@@ -168,12 +156,12 @@ class CartServiceImplTest {
             cart.setCartItems(new ArrayList<>());
             cart.getCartItems().add(new CartItem());
 
-            when(cartRepository.findByUserIdAndCartStatus(userId, CartStatus.ACTIVE))
+            when(cartRepository.findByUser_IdAndCartStatus(userId, CartStatus.ACTIVE))
                     .thenReturn(Optional.of(cart));
             when(cartRepository.save(any(Cart.class))).thenReturn(cart);
 
             // When
-            cartService.clearCart(userId, null);
+            cartService.clearCart(userId);
 
             // Then
             assertTrue(cart.getCartItems().isEmpty());
@@ -230,7 +218,7 @@ class CartServiceImplTest {
             when(cartRepository.findByUserId(userId)).thenReturn(Optional.of(activeCart));
 
             // When
-            Cart result = cartService.getActiveCart(userId, null);
+            Cart result = cartService.getActiveCart(userId);
 
             // Then
             assertNotNull(result);
@@ -245,7 +233,7 @@ class CartServiceImplTest {
             when(cartRepository.findByUserId(userId)).thenReturn(Optional.empty());
 
             // When & Then
-            assertThrows(AppException.class, () -> cartService.getActiveCart(userId, null));
+            assertThrows(AppException.class, () -> cartService.getActiveCart(userId));
         }
     }
 }

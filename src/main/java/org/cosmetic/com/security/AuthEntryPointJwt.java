@@ -1,4 +1,4 @@
-package org.cosmetic.com.security.jwt;
+package org.cosmetic.com.security;
 
 
 import jakarta.servlet.ServletException;
@@ -17,7 +17,8 @@ public class AuthEntryPointJwt implements AuthenticationEntryPoint {
         String message = authException.getCause() != null
                 ? authException.getCause().getMessage()
                 : authException.getMessage();
-
+        response.setContentType("application/json");
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 Unauthorized
         // Trả về JSON thông báo lỗi
         response.getWriter().write("{\"error\": \"Unauthorized\", \"message\": \"" + message + "\"}");
     }

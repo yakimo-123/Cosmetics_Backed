@@ -1,13 +1,15 @@
 package org.cosmetic.com.model;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.cosmetic.com.enums.ReviewStatus;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.Instant;
 
 
-@Data
+@Getter
+@Setter
 @Document(collection = "reviews")
 public class Review {
     @Id

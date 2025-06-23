@@ -15,6 +15,8 @@ public interface OrderDetailMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "order", ignore = true)
     @Mapping(target = "product", source = "product")
+    @Mapping(target = "unitPrice", source = "product.price")
+    @Mapping(target = "subPrice", ignore = true)
     OrderDetail toEntity(OrderDetailRequestDto requestDto, Product product);
 
     @Mapping(target = "productId", source = "product.id")

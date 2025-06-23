@@ -1,6 +1,5 @@
 package org.cosmetic.com.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -36,6 +35,7 @@ public class Product {
     private String imageUrl;
 
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     private ProductStatus productStatus = ProductStatus.ACTIVE;
 
     @ManyToMany

@@ -28,10 +28,13 @@ public class CartItem {
 
     private Integer quantity;
 
+    @Builder.Default
     private BigDecimal price = BigDecimal.ZERO;
 
+    @Builder.Default
     private BigDecimal subPrice = BigDecimal.ZERO;
 
+    @Builder.Default
     private BigDecimal unitPrice = BigDecimal.ZERO;
 
 

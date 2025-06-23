@@ -8,6 +8,7 @@ package org.cosmetic.com.controller;
     import org.cosmetic.com.model.Brand;
     import org.cosmetic.com.service.BrandService;
     import org.springframework.http.ResponseEntity;
+    import org.springframework.security.access.prepost.PreAuthorize;
     import org.springframework.web.bind.annotation.*;
     import java.util.List;
 
@@ -54,6 +55,7 @@ package org.cosmetic.com.controller;
                     ));
         }
 
+        @PreAuthorize("hasRole('ADMIN')")
         @PostMapping
         public ResponseEntity<ApiResponse<BrandResponseDto>> create(@RequestBody BrandRequestDto dto) {
             Brand brand = brandService.save(dto);
@@ -66,6 +68,7 @@ package org.cosmetic.com.controller;
             );
         }
 
+        @PreAuthorize("hasRole('ADMIN')")
         @PutMapping("/{id}")
         public ResponseEntity<ApiResponse<BrandResponseDto>> update(@PathVariable Long id, @RequestBody BrandRequestDto dto) {
             Brand updated = brandService.update(id, dto);
@@ -78,6 +81,7 @@ package org.cosmetic.com.controller;
             );
         }
 
+        @PreAuthorize("hasRole('ADMIN')")
         @DeleteMapping("/{id}")
         public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
             brandService.deleteById(id);

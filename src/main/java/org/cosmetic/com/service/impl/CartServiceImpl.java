@@ -8,6 +8,7 @@ import org.cosmetic.com.exception.ErrorCode;
 import org.cosmetic.com.model.Cart;
 import org.cosmetic.com.model.User;
 import org.cosmetic.com.repository.CartRepository;
+import org.cosmetic.com.repository.UserRepository;
 import org.cosmetic.com.service.CartService;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
@@ -19,6 +20,7 @@ import java.util.Optional;
 public class CartServiceImpl implements CartService {
 
     private final CartRepository cartRepository;
+    private final UserRepository userRepository;
 
     @Override
     public List<Cart> findAll() {
@@ -34,34 +36,25 @@ public class CartServiceImpl implements CartService {
         return cartRepository.findById(id);
     }
 
+    @Transactional
     @Override
-    public Cart getOrCreateCart(Long userId, String sessionId) {
-        Optional<Cart> existingCart;
-        if(userId != null) {
-            existingCart = cartRepository.findByUserIdAndCartStatus(userId,CartStatus.ACTIVE);
-        } else {
-            existingCart = cartRepository.findBySessionIdAndCartStatus(sessionId,CartStatus.ACTIVE);
-        }
-        if (existingCart.isPresent()) {
-            return existingCart.get();
-        }
-
-        Cart newCart = new Cart();
-        if (userId != null) {
-            User user = new User();
-            user.setId(userId);
-            newCart.setUser(user);
+    public Cart getOrCreateCart(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        Cart existingCart = cartRepository.findByUser_IdAndCartStatus(userId,CartStatus.ACTIVE).orElse(null);
+        if (existingCart == null) {
+            existingCart = Cart.builder()
+                    .cartStatus(CartStatus.ACTIVE)
+                    .user(user)
+                    .build();
+            return cartRepository.save(existingCart);
         }else {
-            newCart.setSessionId(sessionId);
+            return existingCart;
         }
-        newCart.setCartStatus(CartStatus.ACTIVE);
-
-        return cartRepository.save(newCart);
     }
 
     @Override
-    public void clearCart(Long userId, String sessionId) {
-        Cart cart = getOrCreateCart(userId,sessionId);
+    public void clearCart(Long userId) {
+        Cart cart = getOrCreateCart(userId);
         cart.getCartItems().clear();
         cartRepository.save(cart);
     }
@@ -82,13 +75,8 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public Cart getActiveCart(Long userId, String sessionId) {
-        if (userId != null) {
+    public Cart getActiveCart(Long userId) {
             return cartRepository.findByUserId(userId)
                     .orElseThrow(() -> new AppException(ErrorCode.ACTIVE_CART_NOT_FOUND));
-        } else {
-            return cartRepository.findBySessionId(sessionId)
-                    .orElseThrow(() -> new AppException(ErrorCode.ACTIVE_CART_NOT_FOUND));
-        }
     }
 }

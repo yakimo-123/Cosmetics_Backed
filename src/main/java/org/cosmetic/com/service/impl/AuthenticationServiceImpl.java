@@ -91,7 +91,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             return;
         }
         User newUser =  User.builder()
-                .fullname(removePrefix(request.getEmail()))
+                .fullname(request.getFullName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER)
@@ -142,10 +142,4 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         otpService.saveOtp(otp, user.getEmail());
     }
 
-    private String removePrefix(String email) {
-        if (email == null || !email.contains("@")) {
-            throw new AppException(ErrorCode.EMAIL_INVALID_FORMAT);
-        }
-        return email.substring(0, email.indexOf('@'));
-    }
 }

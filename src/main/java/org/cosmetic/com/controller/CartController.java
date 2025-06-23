@@ -6,6 +6,7 @@ import org.cosmetic.com.dto.response.ApiResponse;
 import org.cosmetic.com.model.Cart;
 import org.cosmetic.com.service.CartService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,6 +18,7 @@ public class CartController {
 
     private final CartService cartService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<ApiResponse<List<Cart>>> getAllCarts() {
         List<Cart> carts = cartService.findAll();
@@ -27,6 +29,7 @@ public class CartController {
                 .build());
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<Cart>> getCartById(@PathVariable Long id) {
         return cartService.findById(id)
@@ -38,13 +41,12 @@ public class CartController {
                 .orElseThrow(() -> new IllegalArgumentException("Cart not found"));
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @PostMapping
     public ResponseEntity<ApiResponse<Cart>> getOrCreateCart(
-            @RequestParam (required = false) Long userId,
-            HttpServletRequest request
+            @RequestParam  Long userId
     ) {
-        String sessionId = request.getSession().getId();
-        Cart savedCart = cartService.getOrCreateCart(userId, sessionId);
+        Cart savedCart = cartService.getOrCreateCart(userId);
         return ResponseEntity.status(201).body(ApiResponse.<Cart>builder()
                 .status(true)
                 .message("Cart created successfully")
@@ -52,7 +54,7 @@ public class CartController {
                 .build());
     }
 
-
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteCart(@PathVariable Long id) {
         cartService.deleteById(id);

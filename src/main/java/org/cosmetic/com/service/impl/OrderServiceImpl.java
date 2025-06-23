@@ -121,9 +121,9 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Order createOrderFromCart(Long userId, String shippingAddress, PaymentMethod paymentMethod, String sessionId) {
+    public Order createOrderFromCart(Long userId, String shippingAddress, PaymentMethod paymentMethod) {
 
-        Cart cart = cartService.getActiveCart(userId, sessionId);
+        Cart cart = cartService.getActiveCart(userId);
         if (cart == null) {
             throw new AppException(ErrorCode.CART_NOT_FOUND);
         }

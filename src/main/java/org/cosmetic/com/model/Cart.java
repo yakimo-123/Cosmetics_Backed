@@ -25,8 +25,6 @@ public class Cart {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "session_id")
-    private String sessionId;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
@@ -36,6 +34,7 @@ public class Cart {
     @Enumerated(EnumType.STRING)
     private CartStatus cartStatus;
 
+    @Builder.Default
     private BigDecimal totalAmount = BigDecimal.ZERO;
 
     public void addCartItem(CartItem newItem) {

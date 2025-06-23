@@ -7,9 +7,9 @@ import java.util.Optional;
 public interface CartService {
     List<Cart> findAll();
     Optional<Cart> findById(Long id);
-    Cart getOrCreateCart(Long userId, String sessionId);
-    void clearCart(Long userId, String sessionId);
+    Cart getOrCreateCart(Long userId);
+    void clearCart(Long userId);
     void deleteById(Long id);
     Optional<Cart> findByUserId(Long userId);
-    Cart getActiveCart(Long userId, String sessionId);
+    Cart getActiveCart(Long userId);
 }

@@ -229,14 +229,14 @@ class OrderServiceImplTest {
             CartItem cartItem = createCartItem(cart, product, 2);
             cart.setCartItems(List.of(cartItem));
 
-            when(cartService.getActiveCart(userId, sessionId)).thenReturn(cart);
+            when(cartService.getActiveCart(userId)).thenReturn(cart);
             when(productRepository.findAllById(anyList())).thenReturn(List.of(product));
             when(inventoryRepository.findAllByProductIdIn(anyList())).thenReturn(List.of(inventory));
             when(orderRepository.save(any())).thenReturn(createOrder(1L));
 
             // When
             Order createdOrder = orderService.createOrderFromCart(userId, shippingAddress, 
-                paymentMethod, sessionId);
+                paymentMethod);
 
             // Then
             assertNotNull(createdOrder);
@@ -261,11 +261,11 @@ class OrderServiceImplTest {
         @DisplayName("Should throw exception when cart not found")
         void shouldThrowExceptionWhenCartNotFound() {
             // Given
-            when(cartService.getActiveCart(any(), any())).thenReturn(null);
+            when(cartService.getActiveCart(any())).thenReturn(null);
 
             // When & Then
             AppException exception = assertThrows(AppException.class,
-                () -> orderService.createOrderFromCart(1L, "address", PaymentMethod.CASH_ON_DELIVERY, "session"));
+                () -> orderService.createOrderFromCart(1L, "address", PaymentMethod.CASH_ON_DELIVERY));
             assertEquals(ErrorCode.CART_NOT_FOUND, exception.getErrorCode());
         }
     }

@@ -16,5 +16,5 @@ public interface OrderService {
 
     void deleteById(Long id);
 
-    Order createOrderFromCart(Long userId, String shippingAddress, PaymentMethod paymentMethod, String sessionId);
+    Order createOrderFromCart(Long userId, String shippingAddress, PaymentMethod paymentMethod);
 }
