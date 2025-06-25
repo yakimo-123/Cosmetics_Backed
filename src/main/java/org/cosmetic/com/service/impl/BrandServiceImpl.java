@@ -11,7 +11,6 @@ import org.cosmetic.com.service.BrandService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -53,10 +52,7 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    @Caching(evict = {
-            @CacheEvict(value = "brands", allEntries = true),
-            @CacheEvict(value = "brand", key = "#id")
-    })
+    @CacheEvict(value = {"brands", "brand"}, allEntries = true)
     public void deleteById(Long id) {
         brandRepository.deleteById(id);
     }
