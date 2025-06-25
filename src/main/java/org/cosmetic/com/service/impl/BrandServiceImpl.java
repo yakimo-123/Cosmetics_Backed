@@ -2,6 +2,7 @@ package org.cosmetic.com.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.cosmetic.com.dto.request.BrandRequestDto;
+import org.cosmetic.com.dto.response.BrandResponseDto;
 import org.cosmetic.com.exception.AppException;
 import org.cosmetic.com.exception.ErrorCode;
 import org.cosmetic.com.mapper.BrandMapper;
@@ -24,31 +25,36 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     @Cacheable(value = "brands")
-    public List<Brand> findAll() {
-        return brandRepository.findAll();
+    public List<BrandResponseDto> findAll() {
+        return brandRepository.findAll()
+                .stream()
+                .map(brandMapper::toResponseDto)
+                .toList();
     }
 
     @Override
-    @Cacheable(value = "brand", key = "#id") // cache theo id
-    public Optional<Brand> findById(Long id) {
-        return brandRepository.findById(id);
+    @Cacheable(value = "brand", key = "#id")
+    public BrandResponseDto findById(Long id) {
+        Brand brand = brandRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.BRAND_NOT_FOUND));
+        return brandMapper.toResponseDto(brand);
     }
 
     @Override
-    @CacheEvict(value = {"brands"}, allEntries = true) // xóa danh sách khi thêm mới
-    public Brand save(BrandRequestDto dto) {
-        Brand brand = brandMapper.toEntity(dto);
-        return brandRepository.save(brand);
-    }
-
-    @Override
-    @CachePut(value = "brand", key = "#id") // cập nhật cache brand theo id
     @CacheEvict(value = {"brands"}, allEntries = true)
-    public Brand update(Long id, BrandRequestDto dto) {
+    public BrandResponseDto save(BrandRequestDto dto) {
+        Brand brand = brandMapper.toEntity(dto);
+        return brandMapper.toResponseDto(brandRepository.save(brand));
+    }
+
+    @Override
+    @CachePut(value = "brand", key = "#id")
+    @CacheEvict(value = {"brands"}, allEntries = true)
+    public BrandResponseDto update(Long id, BrandRequestDto dto) {
         Brand brand = brandRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.BRAND_NOT_FOUND));
         brand.setName(dto.getName());
-        return brandRepository.save(brand);
+        return brandMapper.toResponseDto(brandRepository.save(brand));
     }
 
     @Override

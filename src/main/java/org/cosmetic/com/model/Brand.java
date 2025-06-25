@@ -13,7 +13,7 @@ import java.util.List;
 @Getter
 @Setter
 @Table(name = "brands")
-public class Brand implements Serializable {
+public class Brand  {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -25,6 +25,6 @@ public class Brand implements Serializable {
 
     private String imageUrl;
 
-    @OneToMany(mappedBy = "brand")
+    @OneToMany(mappedBy = "brand",fetch = FetchType.LAZY)
     private List<Product> products;
 }
