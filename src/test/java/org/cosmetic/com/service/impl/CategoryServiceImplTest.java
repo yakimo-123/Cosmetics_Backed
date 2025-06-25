@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +36,14 @@ class CategoryServiceImplTest {
     @BeforeEach
     void setUp() {
         categoryService = new CategoryServiceImpl(categoryRepository, categoryMapper);
+    }
+
+    // Helper method to create Category instances for testing
+    private Category createCategory(Long id, String name) {
+        Category category = new Category();
+        category.setId(id);
+        category.setCategoryName(name);
+        return category;
     }
 
     @Nested
@@ -126,7 +135,7 @@ class CategoryServiceImplTest {
             // Given
             CategoryRequestDto requestDto = new CategoryRequestDto();
             requestDto.setCategoryName("New Category");
-            
+
             Category category = createCategory(1L, "New Category");
             CategoryResponseDto responseDto = CategoryResponseDto.builder()
                     .id(1L)
@@ -155,7 +164,7 @@ class CategoryServiceImplTest {
             // Given
             CategoryRequestDto requestDto = new CategoryRequestDto();
             requestDto.setCategoryName("Existing Category");
-            
+
             when(categoryMapper.toEntity(requestDto)).thenReturn(new Category());
             when(categoryRepository.save(any(Category.class)))
                     .thenThrow(new AppException(ErrorCode.VALIDATION_FAILED));
@@ -204,7 +213,7 @@ class CategoryServiceImplTest {
             // Given
             Long categoryId = 1L;
             CategoryRequestDto requestDto = new CategoryRequestDto();
-            
+
             when(categoryRepository.findById(categoryId)).thenReturn(Optional.empty());
 
             // When & Then
@@ -280,13 +289,5 @@ class CategoryServiceImplTest {
             assertTrue(result.isEmpty());
             verify(categoryRepository).findAll();
         }
-    }
-
-    // Helper method to create Category instances for testing
-    private Category createCategory(Long id, String name) {
-        Category category = new Category();
-        category.setId(id);
-        category.setCategoryName(name);
-        return category;
     }
 }

@@ -46,7 +46,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product save(ProductRequestDto productRequestDto, List<MultipartFile> images) throws IOException{
+    public Product save(ProductRequestDto productRequestDto, List<MultipartFile> images) throws IOException {
         Product product = productMapper.toEntity(productRequestDto);
 
         List<Category> categories = categoryRepository.findAllById(productRequestDto.getCategoryIds());
@@ -70,7 +70,7 @@ public class ProductServiceImpl implements ProductService {
         }
         //Save product to get product id
         product = productRepository.save(product);
-        Inventory inventory = inventoryService.getOrCreateInventory(product.getId(),quantity);
+        Inventory inventory = inventoryService.getOrCreateInventory(product.getId(), quantity);
         product.setInventory(inventory);
 
         boolean isFirstImageAddEd = false;
@@ -126,6 +126,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Page<Product> findAllProductNotInProductStatusDISCONTINUED(Pageable pageable) {
-        return productRepository.findByProductStatusNotIn(List.of(ProductStatus.DISCONTINUED),pageable);
+        return productRepository.findByProductStatusNotIn(List.of(ProductStatus.DISCONTINUED), pageable);
     }
 }

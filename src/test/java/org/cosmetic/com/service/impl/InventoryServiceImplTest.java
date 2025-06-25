@@ -13,9 +13,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -32,6 +34,17 @@ class InventoryServiceImplTest {
     @InjectMocks
     private InventoryServiceImpl inventoryService;
 
+    private Inventory createInventory(Long id, int quantity) {
+        Product product = new Product();
+        product.setId(id);
+
+        return Inventory.builder()
+                .id(id)
+                .product(product)
+                .quantity(quantity)
+                .build();
+    }
+
     @Nested
     @DisplayName("Find All Inventory Tests")
     class FindAllTests {
@@ -41,8 +54,8 @@ class InventoryServiceImplTest {
         void shouldReturnAllInventoriesWhenTheyExist() {
             // Given
             List<Inventory> expectedInventories = Arrays.asList(
-                createInventory(1L, 10),
-                createInventory(2L, 20)
+                    createInventory(1L, 10),
+                    createInventory(2L, 20)
             );
             when(inventoryRepository.findAll()).thenReturn(expectedInventories);
 
@@ -158,8 +171,8 @@ class InventoryServiceImplTest {
             when(inventoryRepository.existsById(id)).thenReturn(false);
 
             // When & Then
-            AppException exception = assertThrows(AppException.class, 
-                () -> inventoryService.deleteById(id));
+            AppException exception = assertThrows(AppException.class,
+                    () -> inventoryService.deleteById(id));
             assertEquals(ErrorCode.INVENTORY_NOT_FOUND, exception.getErrorCode());
             verify(inventoryRepository).existsById(id);
             verify(inventoryRepository, never()).deleteById(any());
@@ -225,7 +238,7 @@ class InventoryServiceImplTest {
 
             // When & Then
             AppException exception = assertThrows(AppException.class,
-                () -> inventoryService.getOrCreateInventory(productId, quantity));
+                    () -> inventoryService.getOrCreateInventory(productId, quantity));
             assertEquals(ErrorCode.PRODUCT_ID_REQUIRED, exception.getErrorCode());
             verify(inventoryRepository, never()).findByProduct_Id(any());
             verify(productRepository, never()).findById(any());
@@ -242,21 +255,10 @@ class InventoryServiceImplTest {
 
             // When & Then
             AppException exception = assertThrows(AppException.class,
-                () -> inventoryService.getOrCreateInventory(productId, quantity));
+                    () -> inventoryService.getOrCreateInventory(productId, quantity));
             assertEquals(ErrorCode.PRODUCT_NOT_FOUND, exception.getErrorCode());
             verify(inventoryRepository).findByProduct_Id(productId);
             verify(productRepository).findById(productId);
         }
-    }
-
-    private Inventory createInventory(Long id, int quantity) {
-        Product product = new Product();
-        product.setId(id);
-        
-        return Inventory.builder()
-                .id(id)
-                .product(product)
-                .quantity(quantity)
-                .build();
     }
 }

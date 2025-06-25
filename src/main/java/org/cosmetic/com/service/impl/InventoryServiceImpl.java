@@ -19,6 +19,7 @@ public class InventoryServiceImpl implements InventoryService {
 
     private final InventoryRepository inventoryRepository;
     private final ProductRepository productRepository;
+
     @Override
     public List<Inventory> findAll() {
         return inventoryRepository.findAll();
@@ -49,7 +50,7 @@ public class InventoryServiceImpl implements InventoryService {
         }
         Inventory inventory = inventoryRepository.findByProduct_Id(productId);
 
-        if(inventory != null) {
+        if (inventory != null) {
             inventory.setQuantity(inventory.getQuantity() + quantity);
             return inventoryRepository.save(inventory);
         }
@@ -57,7 +58,7 @@ public class InventoryServiceImpl implements InventoryService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
-        inventory =Inventory.builder()
+        inventory = Inventory.builder()
                 .product(product)
                 .quantity(quantity)
                 .build();

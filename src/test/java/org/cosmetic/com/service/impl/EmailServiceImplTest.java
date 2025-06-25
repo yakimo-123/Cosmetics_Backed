@@ -69,11 +69,11 @@ class EmailServiceImplTest {
             String text = "Test Message";
 
             doThrow(new RuntimeException("Email sending failed"))
-                .when(mailSender).send(any(SimpleMailMessage.class));
+                    .when(mailSender).send(any(SimpleMailMessage.class));
 
             // When & Then
             AppException exception = assertThrows(AppException.class,
-                () -> emailService.sendSimpleEmail(to, subject, text));
+                    () -> emailService.sendSimpleEmail(to, subject, text));
             assertEquals(ErrorCode.EMAIL_SEND_FAILED, exception.getErrorCode());
         }
     }
@@ -119,7 +119,7 @@ class EmailServiceImplTest {
 
             // When & Then
             AppException exception = assertThrows(AppException.class,
-                () -> emailService.sendEmailWithAttachment(to, subject, text, attachment));
+                    () -> emailService.sendEmailWithAttachment(to, subject, text, attachment));
             assertEquals(ErrorCode.EMAIL_SEND_FAILED, exception.getErrorCode());
         }
     }
@@ -161,11 +161,11 @@ class EmailServiceImplTest {
             when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
             when(templateEngine.process(anyString(), any())).thenReturn(processedContent);
             doThrow(new RuntimeException("Failed to send email"))
-                .when(mailSender).send(any(MimeMessage.class));
+                    .when(mailSender).send(any(MimeMessage.class));
 
             // When & Then
             AppException exception = assertThrows(AppException.class,
-                () -> emailService.sendVerificationEmail(to, verificationCode));
+                    () -> emailService.sendVerificationEmail(to, verificationCode));
             assertEquals(ErrorCode.EMAIL_VERIFICATION_FAILED, exception.getErrorCode());
         }
     }
@@ -207,11 +207,11 @@ class EmailServiceImplTest {
             when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
             when(templateEngine.process(anyString(), any())).thenReturn(processedContent);
             doThrow(new RuntimeException("Failed to send email"))
-                .when(mailSender).send(any(MimeMessage.class));
+                    .when(mailSender).send(any(MimeMessage.class));
 
             // When & Then
             AppException exception = assertThrows(AppException.class,
-                () -> emailService.sendForgotPasswordEmail(to, verificationCode));
+                    () -> emailService.sendForgotPasswordEmail(to, verificationCode));
             assertEquals(ErrorCode.EMAIL_FORGOT_FAILED, exception.getErrorCode());
         }
     }

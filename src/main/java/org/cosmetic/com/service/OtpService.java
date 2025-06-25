@@ -1,10 +1,15 @@
 package org.cosmetic.com.service;
 
 public interface OtpService {
-    public void saveOtp(String keyOtp, String email);
-    public String verifyOtp(String inputOtp);
-    public String getEmailByOtp(String otp);
-    public boolean isOtpExpired(String email);
-    public void removeOtp(String email);
-    public String generateOtpCode();
+    void saveOtp(String keyOtp, String email);
+
+    String verifyOtp(String inputOtp);
+
+    String getEmailByOtp(String otp);
+
+    boolean isOtpExpired(String email);
+
+    void removeOtp(String email);
+
+    String generateOtpCode();
 }

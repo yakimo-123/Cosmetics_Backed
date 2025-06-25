@@ -7,6 +7,7 @@ import org.cosmetic.com.model.User;
 import org.cosmetic.com.repository.UserRepository;
 import org.cosmetic.com.service.UserService;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 @Service

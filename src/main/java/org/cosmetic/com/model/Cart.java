@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.cosmetic.com.enums.CartStatus;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +40,7 @@ public class Cart {
     private BigDecimal totalAmount = BigDecimal.ZERO;
 
     public void addCartItem(CartItem newItem) {
-        if(cartItems == null) {
+        if (cartItems == null) {
             cartItems = new ArrayList<>();
         }
         for (CartItem existingItem : cartItems) {

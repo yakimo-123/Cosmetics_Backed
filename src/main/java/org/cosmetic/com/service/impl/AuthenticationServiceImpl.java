@@ -7,7 +7,8 @@ import org.cosmetic.com.dto.request.LoginRequestDto;
 import org.cosmetic.com.dto.request.RegisterRequestDto;
 import org.cosmetic.com.dto.response.LoginResponseDto;
 import org.cosmetic.com.enums.Role;
-import org.cosmetic.com.exception.*;
+import org.cosmetic.com.exception.AppException;
+import org.cosmetic.com.exception.ErrorCode;
 import org.cosmetic.com.model.User;
 import org.cosmetic.com.repository.UserRepository;
 import org.cosmetic.com.security.jwt.JwtUtil;
@@ -47,7 +48,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         response.addCookie(cookie);
 
         return LoginResponseDto.builder()
-                .accessToken(jwtUtil.generateToken(user.getUsername(),user.getRole()))
+                .accessToken(jwtUtil.generateToken(user.getUsername(), user.getRole()))
                 .username(user.getUsername())
                 .build();
     }
@@ -84,13 +85,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new AppException(ErrorCode.EMAIL_ALREADY_EXISTS);
         }
         // If user exists but is not enabled
-        if(user.isPresent()) {
+        if (user.isPresent()) {
             String otp = otpService.generateOtpCode();
             emailService.sendVerificationEmail(user.get().getEmail(), otp);
             otpService.saveOtp(otp, user.get().getEmail());
             return;
         }
-        User newUser =  User.builder()
+        User newUser = User.builder()
                 .fullname(request.getFullName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))

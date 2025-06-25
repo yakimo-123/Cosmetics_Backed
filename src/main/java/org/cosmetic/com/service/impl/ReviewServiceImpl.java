@@ -20,8 +20,8 @@ import java.util.List;
 @AllArgsConstructor
 public class ReviewServiceImpl implements ReviewService {
 
-    private ReviewRepository reviewRepository;
     private final ReviewMapper reviewMapper;
+    private ReviewRepository reviewRepository;
 
     @Override
     public Review createReview(ReviewRequestDto requestDto) {

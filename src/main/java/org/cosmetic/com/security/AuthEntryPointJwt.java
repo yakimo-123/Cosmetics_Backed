@@ -30,7 +30,6 @@ public class AuthEntryPointJwt implements AuthenticationEntryPoint {
                 message);
         response.setContentType("application/json");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 Unauthorized
-        // Trả về JSON thông báo lỗi
         response.getWriter().write("{\"error\": \"Unauthorized\", \"message\": \"" + message + "\"}");
     }
 }

@@ -86,7 +86,7 @@ class OtpServiceImplTest {
 
             // When & Then
             AppException exception = assertThrows(AppException.class,
-                () -> otpService.verifyOtp(otp));
+                    () -> otpService.verifyOtp(otp));
             assertEquals(ErrorCode.OTP_INVALID, exception.getErrorCode());
             verify(redisTemplate).opsForValue();
             verify(valueOperations).get(otp);
@@ -126,7 +126,7 @@ class OtpServiceImplTest {
 
             // When & Then
             AppException exception = assertThrows(AppException.class,
-                () -> otpService.getEmailByOtp(otp));
+                    () -> otpService.getEmailByOtp(otp));
             assertEquals(ErrorCode.OTP_INVALID, exception.getErrorCode());
             verify(redisTemplate).opsForValue();
             verify(valueOperations).get(otp);

@@ -1,6 +1,5 @@
 package org.cosmetic.com.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.cosmetic.com.dto.response.ApiResponse;
 import org.cosmetic.com.model.Cart;
@@ -44,7 +43,7 @@ public class CartController {
     @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @PostMapping
     public ResponseEntity<ApiResponse<Cart>> getOrCreateCart(
-            @RequestParam  Long userId
+            @RequestParam Long userId
     ) {
         Cart savedCart = cartService.getOrCreateCart(userId);
         return ResponseEntity.status(201).body(ApiResponse.<Cart>builder()

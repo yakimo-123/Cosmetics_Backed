@@ -9,6 +9,7 @@ import org.cosmetic.com.model.Supplier;
 import org.cosmetic.com.repository.SupplierRepository;
 import org.cosmetic.com.service.SupplierService;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 @Service
@@ -17,6 +18,7 @@ public class SupplierServiceImpl implements SupplierService {
 
     private final SupplierRepository supplierRepository;
     private final SupplierMapper supplierMapper;
+
     @Override
     public List<Supplier> findAll() {
         return supplierRepository.findAll();

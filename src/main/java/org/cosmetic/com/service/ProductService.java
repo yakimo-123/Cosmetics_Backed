@@ -15,11 +15,11 @@ public interface ProductService {
 
     Optional<Product> findById(Long id);
 
-    Product save(ProductRequestDto product,List<MultipartFile> images) throws IOException;
+    Product save(ProductRequestDto product, List<MultipartFile> images) throws IOException;
 
     void deleteById(Long id);
 
-    Product update(Long id,ProductRequestDto product,List<MultipartFile> images) throws IOException;
+    Product update(Long id, ProductRequestDto product, List<MultipartFile> images) throws IOException;
 
     Page<Product> findAllProductNotInProductStatusDISCONTINUED(Pageable pageable);
 }

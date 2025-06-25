@@ -11,6 +11,7 @@ import org.cosmetic.com.repository.CartRepository;
 import org.cosmetic.com.service.CartItemService;
 import org.cosmetic.com.service.ProductService;
 import org.springframework.stereotype.Service;
+
 import java.math.BigDecimal;
 
 @Service
@@ -58,12 +59,12 @@ public class CartItemServiceImpl implements CartItemService {
                 .filter(item -> item.getProduct().getId().equals(productId))
                 .findFirst()
                 .ifPresentOrElse(cartItem -> {
-                    cartItem.setQuantity(quantity);
-                    cartItem.updateSubPrice();
-                },
-                () -> {
-                    throw new AppException(ErrorCode.CART_ITEM_NOT_FOUND);
-                });
+                            cartItem.setQuantity(quantity);
+                            cartItem.updateSubPrice();
+                        },
+                        () -> {
+                            throw new AppException(ErrorCode.CART_ITEM_NOT_FOUND);
+                        });
         // Update the cart total amount
         BigDecimal totalAmount = cart.getCartItems().stream()
                 .map(CartItem::getSubPrice)
@@ -75,9 +76,9 @@ public class CartItemServiceImpl implements CartItemService {
     private CartItem getCartItem(Long cartId, Long productId) {
         Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new AppException(ErrorCode.CART_NOT_FOUND));
-        return  cart.getCartItems()
+        return cart.getCartItems()
                 .stream()
                 .filter(item -> item.getProduct().getId().equals(productId))
-                .findFirst().orElseThrow(() ->  new AppException(ErrorCode.CART_ITEM_NOT_FOUND));
+                .findFirst().orElseThrow(() -> new AppException(ErrorCode.CART_ITEM_NOT_FOUND));
     }
 }

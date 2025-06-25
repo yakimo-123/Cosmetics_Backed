@@ -7,13 +7,15 @@ import org.cosmetic.com.model.Cart;
 import org.cosmetic.com.model.User;
 import org.cosmetic.com.repository.CartRepository;
 import org.cosmetic.com.repository.UserRepository;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +25,8 @@ import java.math.BigDecimal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Integration-test (controller → service → JPA) for the /api/carts endpoints.
@@ -35,11 +38,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DisplayName("CartController integration tests")
 class CartControllerIntegrationTest {
 
-    @Autowired MockMvc mockMvc;
-    @Autowired ObjectMapper objectMapper;
-    @Autowired CartRepository cartRepository;
-    @Autowired UserRepository userRepository;
-    @Autowired PasswordEncoder passwordEncoder;
+    @Autowired
+    MockMvc mockMvc;
+    @Autowired
+    ObjectMapper objectMapper;
+    @Autowired
+    CartRepository cartRepository;
+    @Autowired
+    UserRepository userRepository;
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     User admin, alice;
     Cart aliceCart;
@@ -68,7 +76,7 @@ class CartControllerIntegrationTest {
 
         aliceCart = cartRepository.save(Cart.builder()
                 .user(alice)
-                .cartStatus( CartStatus.ACTIVE )
+                .cartStatus(CartStatus.ACTIVE)
                 .totalAmount(BigDecimal.ZERO)
                 .build());
     }
@@ -189,7 +197,7 @@ class CartControllerIntegrationTest {
             mockMvc.perform(delete("/api/carts/{id}", aliceCart.getId())
                             .with(user("alice").roles("USER")))
                     .andExpect(status().isOk());
-            assertThat(cartRepository.existsByIdAndCartStatus(aliceCart.getId(),CartStatus.ACTIVE)).isFalse();
+            assertThat(cartRepository.existsByIdAndCartStatus(aliceCart.getId(), CartStatus.ACTIVE)).isFalse();
         }
 
         @Test

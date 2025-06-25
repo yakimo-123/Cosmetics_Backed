@@ -19,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.mock.web.MockMultipartFile;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -31,29 +32,37 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class ProductServiceImplTest {
 
-    @Mock private ProductRepository productRepository;
-    @Mock private ProductMapper productMapper;
-    @Mock private ImgUrlService imgUrlService;
-    @Mock private CategoryRepository categoryRepository;
-    @Mock private SupplierRepository supplierRepository;
-    @Mock private BrandRepository brandRepository;
-    @Mock private InventoryRepository inventoryRepository;
-    @Mock private InventoryService inventoryService;
+    @Mock
+    private ProductRepository productRepository;
+    @Mock
+    private ProductMapper productMapper;
+    @Mock
+    private ImgUrlService imgUrlService;
+    @Mock
+    private CategoryRepository categoryRepository;
+    @Mock
+    private SupplierRepository supplierRepository;
+    @Mock
+    private BrandRepository brandRepository;
+    @Mock
+    private InventoryRepository inventoryRepository;
+    @Mock
+    private InventoryService inventoryService;
 
     private ProductServiceImpl productService;
 
     @BeforeEach
     void setUp() {
         productService = new ProductServiceImpl(
-            productRepository, productMapper, imgUrlService, categoryRepository,
-            supplierRepository, brandRepository, inventoryRepository, inventoryService
+                productRepository, productMapper, imgUrlService, categoryRepository,
+                supplierRepository, brandRepository, inventoryRepository, inventoryService
         );
     }
 
     @Nested
     @DisplayName("Find All Products Tests")
     class FindAllTests {
-        
+
         @Test
         @DisplayName("Should return all products")
         void shouldReturnAllProducts() {
@@ -122,14 +131,14 @@ class ProductServiceImplTest {
 
             Product product = new Product();
             product.setId(1L);
-            
+
             List<Category> categories = List.of(new Category());
             Supplier supplier = new Supplier();
             Brand brand = new Brand();
             Inventory inventory = new Inventory();
-            
+
             MockMultipartFile image = new MockMultipartFile(
-                "image", "test.jpg", "image/jpeg", "test".getBytes()
+                    "image", "test.jpg", "image/jpeg", "test".getBytes()
             );
 
             when(productMapper.toEntity(requestDto)).thenReturn(product);
@@ -174,7 +183,7 @@ class ProductServiceImplTest {
             Long productId = 1L;
             Product product = new Product();
             product.setId(productId);
-            
+
             when(productRepository.findById(productId)).thenReturn(Optional.of(product));
             when(productRepository.save(any(Product.class))).thenReturn(product);
 
@@ -210,7 +219,7 @@ class ProductServiceImplTest {
             ProductRequestDto productDto = new ProductRequestDto();
             Product product = new Product();
             MockMultipartFile image = new MockMultipartFile(
-                "image", "test.jpg", "image/jpeg", "test".getBytes()
+                    "image", "test.jpg", "image/jpeg", "test".getBytes()
             );
 
             when(productRepository.findById(productId)).thenReturn(Optional.of(product));
@@ -237,8 +246,8 @@ class ProductServiceImplTest {
             when(productRepository.findById(productId)).thenReturn(Optional.empty());
 
             // When & Then
-            assertThrows(AppException.class, 
-                () -> productService.update(productId, productDto, null));
+            assertThrows(AppException.class,
+                    () -> productService.update(productId, productDto, null));
         }
     }
 

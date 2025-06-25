@@ -44,7 +44,7 @@ public class User {
     private String address;
 
     @Builder.Default
-    private boolean enabled =false;
+    private boolean enabled = false;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

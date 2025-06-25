@@ -20,19 +20,13 @@ import java.util.UUID;
 public class ImgUrlServiceImpl implements ImgUrlService {
 
     private final ImageUrlRepository imageUrlRepository;
-
+    private final S3Client s3Client;
     @Value("${cloudflare.r2.bucket}")
     private String bucket;
-
     @Value(
-"${cloudflare.r2.accountId}"
+            "${cloudflare.r2.accountId}"
     )
     private String accountId;
-
-    private final S3Client s3Client;
-
-
-
 
     @Override
     public ImageUrl saveImageUrl(ImageUrl imageUrl) {

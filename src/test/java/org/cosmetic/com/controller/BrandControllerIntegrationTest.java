@@ -5,7 +5,10 @@ import org.cosmetic.com.dto.request.BrandRequestDto;
 import org.cosmetic.com.model.Brand;
 import org.cosmetic.com.repository.BrandRepository;
 import org.cosmetic.com.repository.UserRepository;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,10 +18,13 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Integration-tests (controller → service → JPA) for the /api/brands endpoints.
@@ -30,12 +36,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DisplayName("BrandController integration")
 class BrandControllerIntegrationTest {
 
-    @Autowired MockMvc mockMvc;
-    @Autowired ObjectMapper objectMapper;
+    @Autowired
+    MockMvc mockMvc;
+    @Autowired
+    ObjectMapper objectMapper;
 
-    @Autowired BrandRepository brandRepository;
-    @Autowired UserRepository  userRepository;
-    @Autowired PasswordEncoder passwordEncoder;   // to create an ADMIN user if you test real auth
+    @Autowired
+    BrandRepository brandRepository;
+    @Autowired
+    UserRepository userRepository;
+    @Autowired
+    PasswordEncoder passwordEncoder;   // to create an ADMIN user if you test real auth
 
     /* -------------------------------------------------------------
        GET /api/brands
@@ -133,7 +144,7 @@ class BrandControllerIntegrationTest {
             mockMvc.perform(post("/api/brands")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(req)))
-                           .andExpect(status().isForbidden());
+                    .andExpect(status().isForbidden());
             assertThat(brandRepository.existsByNameIgnoreCase("Forbidden")).isFalse();
 
         }

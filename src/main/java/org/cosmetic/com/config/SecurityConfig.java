@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -20,6 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
 import java.util.List;
 
 @Configuration
@@ -27,10 +27,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final AuthEntryPointJwt authEntryPointJwt;
-    private final AuthTokenFilter authTokenFilter;
-    private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
-    private final CustomAccessDeniedHandler customAccessDeniedHandler;
     // Các endpoint công khai (mọi method, chủ yếu là GET)
     private static final String[] PUBLIC_GET_ENDPOINTS = {
             "/api/brands/**",
@@ -38,29 +34,28 @@ public class SecurityConfig {
             "/api/categories/**",
             "/api/images/**"
     };
-
     private static final String[] ADMIN_GET_ENDPOINTS = {
             "/api/carts",
     };
-
     // Các endpoint yêu cầu ADMIN cho POST/PUT/DELETE
     private static final String[] ADMIN_POST_ENDPOINTS = {
             "/api/brands/**",
             "/api/categories/**"
     };
-
     private static final String[] ADMIN_PUT_ENDPOINTS = {
             "/api/brands/**",
             "/api/categories/**"
     };
-
     private static final String[] ADMIN_DELETE_ENDPOINTS = {
             "/api/brands/**",
             "/api/categories/**"
     };
-
+    private final AuthEntryPointJwt authEntryPointJwt;
+    private final AuthTokenFilter authTokenFilter;
+    private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
     // Define the white-listed URLs that do not require authentication
-     String[] WHITE_LIST_URL = {
+    String[] WHITE_LIST_URL = {
             "/api/auth/**",
             "/api/orders/**",
             "/v3/api-docs/**",

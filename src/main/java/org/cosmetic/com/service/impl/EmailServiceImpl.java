@@ -66,7 +66,6 @@ public class EmailServiceImpl implements EmailService {
     }
 
 
-
     @Async
     @Override
     public void sendVerificationEmail(String to, String verificationCode) {

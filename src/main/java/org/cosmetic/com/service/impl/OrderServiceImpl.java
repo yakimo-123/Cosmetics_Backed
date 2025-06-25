@@ -176,7 +176,7 @@ public class OrderServiceImpl implements OrderService {
         });
         order.setTotalAmount(cart.getTotalAmount());
         // Save order and order details
-        Order savedOrder  = orderRepository.save(order);
+        Order savedOrder = orderRepository.save(order);
         orderDetailRepository.saveAll(order.getOrderDetails());
 
         // Update inventory

@@ -10,10 +10,16 @@ import org.springframework.stereotype.Service;
 @Service
 public interface AuthenticationService {
     LoginResponseDto authenticate(LoginRequestDto request, HttpServletResponse response);
+
     void logout(String accessToken);
+
     String refreshAccessToken(String refreshToken);
+
     void register(RegisterRequestDto request);
+
     boolean verifyEmail(String verificationCode);
-    void  forgotPassword(String email);
+
+    void forgotPassword(String email);
+
     void resendVerificationEmail(String email);
 }

@@ -57,7 +57,7 @@ class AuthenticationServiceImplTest {
     @Nested
     @DisplayName("Authentication Tests")
     class AuthenticationTests {
-        
+
         @Test
         @DisplayName("Should successfully authenticate user")
         void shouldAuthenticateSuccessfully() {
@@ -94,12 +94,12 @@ class AuthenticationServiceImplTest {
             // Given
             LoginRequestDto request = new LoginRequestDto();
             request.setEmail("nonexistent@example.com");
-            
+
             when(userRepository.findByEmail(request.getEmail())).thenReturn(Optional.empty());
 
             // When & Then
-            AppException exception = assertThrows(AppException.class, 
-                () -> authenticationService.authenticate(request, response));
+            AppException exception = assertThrows(AppException.class,
+                    () -> authenticationService.authenticate(request, response));
             assertEquals(ErrorCode.USER_NOT_FOUND, exception.getErrorCode());
         }
     }
@@ -148,8 +148,8 @@ class AuthenticationServiceImplTest {
             when(userRepository.findByEmail(request.getEmail())).thenReturn(Optional.of(existingUser));
 
             // When & Then
-            AppException exception = assertThrows(AppException.class, 
-                () -> authenticationService.register(request));
+            AppException exception = assertThrows(AppException.class,
+                    () -> authenticationService.register(request));
             assertEquals(ErrorCode.EMAIL_ALREADY_EXISTS, exception.getErrorCode());
         }
     }
@@ -189,8 +189,8 @@ class AuthenticationServiceImplTest {
             when(otpService.getEmailByOtp(invalidCode)).thenReturn(null);
 
             // When & Then
-            AppException exception = assertThrows(AppException.class, 
-                () -> authenticationService.verifyEmail(invalidCode));
+            AppException exception = assertThrows(AppException.class,
+                    () -> authenticationService.verifyEmail(invalidCode));
             assertEquals(ErrorCode.INVALID_OTP, exception.getErrorCode());
         }
     }

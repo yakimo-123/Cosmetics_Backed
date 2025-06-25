@@ -9,6 +9,7 @@ import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.util.stream.Collectors;
@@ -20,7 +21,7 @@ public class GlobalExceptionHandler {
     // --- Generic Handler ---
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Object>> handleAllExceptions(Exception ex) {
-        log.error("Unhandled exception: {}",ex.getMessage() ,ex);
+        log.error("Unhandled exception: {}", ex.getMessage(), ex);
         return buildResponse("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

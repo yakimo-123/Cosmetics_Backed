@@ -12,7 +12,6 @@ import org.cosmetic.com.mapper.OrderMapper;
 import org.cosmetic.com.model.*;
 import org.cosmetic.com.repository.*;
 import org.cosmetic.com.service.CartService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -28,7 +27,8 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class OrderServiceImplTest {
@@ -55,6 +55,79 @@ class OrderServiceImplTest {
     @InjectMocks
     private OrderServiceImpl orderService;
 
+    // Helper methods to create test objects
+    private Order createOrder(Long id) {
+        return Order.builder()
+                .id(id)
+                .orderStatus(OrderStatus.PENDING)
+                .totalAmount(BigDecimal.valueOf(100))
+                .build();
+    }
+
+    private OrderRequestDto createOrderRequestDto() {
+        OrderDetailRequestDto detailDto = new OrderDetailRequestDto();
+        detailDto.setProductId(1L);
+        detailDto.setQuantity(5);
+
+        OrderRequestDto dto = new OrderRequestDto();
+        dto.setCustomerId(1L);
+        dto.setOrderDetails(List.of(detailDto));
+        return dto;
+    }
+
+    private User createUser(Long id) {
+        return User.builder()
+                .id(id)
+                .username("testuser")
+                .build();
+    }
+
+    private Product createProduct(Long id) {
+        return Product.builder()
+                .id(id)
+                .productName("Test Product")
+                .price(BigDecimal.valueOf(10))
+                .build();
+    }
+
+    private Inventory createInventory(Long id, Product product, int quantity) {
+        return Inventory.builder()
+                .id(id)
+                .product(product)
+                .quantity(quantity)
+                .build();
+    }
+
+    private OrderDetail createOrderDetail(Long id, Product product) {
+        return OrderDetail.builder()
+                .id(id)
+                .product(product)
+                .quantity(5)
+                .unitPrice(product.getPrice())
+                .subPrice(product.getPrice().multiply(BigDecimal.valueOf(5)))
+                .build();
+    }
+
+    private Cart createCart(Long userId) {
+        return Cart.builder()
+                .id(1L)
+                .user(createUser(userId))
+                .cartStatus(CartStatus.ACTIVE)
+                .totalAmount(BigDecimal.valueOf(100))
+                .build();
+    }
+
+    private CartItem createCartItem(Cart cart, Product product, int quantity) {
+        return CartItem.builder()
+                .id(1L)
+                .cart(cart)
+                .product(product)
+                .quantity(quantity)
+                .unitPrice(product.getPrice())
+                .subPrice(product.getPrice().multiply(BigDecimal.valueOf(quantity)))
+                .build();
+    }
+
     @Nested
     @DisplayName("Find All Orders Tests")
     class FindAllTests {
@@ -64,8 +137,8 @@ class OrderServiceImplTest {
         void shouldReturnAllOrdersWhenTheyExist() {
             // Given
             List<Order> expectedOrders = Arrays.asList(
-                createOrder(1L),
-                createOrder(2L)
+                    createOrder(1L),
+                    createOrder(2L)
             );
             when(orderRepository.findAll()).thenReturn(expectedOrders);
 
@@ -184,7 +257,7 @@ class OrderServiceImplTest {
 
             // When & Then
             AppException exception = assertThrows(AppException.class,
-                () -> orderService.save(requestDto));
+                    () -> orderService.save(requestDto));
             assertEquals(ErrorCode.USER_NOT_FOUND, exception.getErrorCode());
         }
 
@@ -205,7 +278,7 @@ class OrderServiceImplTest {
 
             // When & Then
             AppException exception = assertThrows(AppException.class,
-                () -> orderService.save(requestDto));
+                    () -> orderService.save(requestDto));
             assertEquals(ErrorCode.INSUFFICIENT_INVENTORY, exception.getErrorCode());
         }
     }
@@ -235,8 +308,8 @@ class OrderServiceImplTest {
             when(orderRepository.save(any())).thenReturn(createOrder(1L));
 
             // When
-            Order createdOrder = orderService.createOrderFromCart(userId, shippingAddress, 
-                paymentMethod);
+            Order createdOrder = orderService.createOrderFromCart(userId, shippingAddress,
+                    paymentMethod);
 
             // Then
             assertNotNull(createdOrder);
@@ -265,81 +338,8 @@ class OrderServiceImplTest {
 
             // When & Then
             AppException exception = assertThrows(AppException.class,
-                () -> orderService.createOrderFromCart(1L, "address", PaymentMethod.CASH_ON_DELIVERY));
+                    () -> orderService.createOrderFromCart(1L, "address", PaymentMethod.CASH_ON_DELIVERY));
             assertEquals(ErrorCode.CART_NOT_FOUND, exception.getErrorCode());
         }
-    }
-
-    // Helper methods to create test objects
-    private Order createOrder(Long id) {
-        return Order.builder()
-                .id(id)
-                .orderStatus(OrderStatus.PENDING)
-                .totalAmount(BigDecimal.valueOf(100))
-                .build();
-    }
-
-    private OrderRequestDto createOrderRequestDto() {
-        OrderDetailRequestDto detailDto = new OrderDetailRequestDto();
-        detailDto.setProductId(1L);
-        detailDto.setQuantity(5);
-
-        OrderRequestDto dto = new OrderRequestDto();
-        dto.setCustomerId(1L);
-        dto.setOrderDetails(List.of(detailDto));
-        return dto;
-    }
-
-    private User createUser(Long id) {
-        return User.builder()
-                .id(id)
-                .username("testuser")
-                .build();
-    }
-
-    private Product createProduct(Long id) {
-        return Product.builder()
-                .id(id)
-                .productName("Test Product")
-                .price(BigDecimal.valueOf(10))
-                .build();
-    }
-
-    private Inventory createInventory(Long id, Product product, int quantity) {
-        return Inventory.builder()
-                .id(id)
-                .product(product)
-                .quantity(quantity)
-                .build();
-    }
-
-    private OrderDetail createOrderDetail(Long id, Product product) {
-        return OrderDetail.builder()
-                .id(id)
-                .product(product)
-                .quantity(5)
-                .unitPrice(product.getPrice())
-                .subPrice(product.getPrice().multiply(BigDecimal.valueOf(5)))
-                .build();
-    }
-
-    private Cart createCart(Long userId) {
-        return Cart.builder()
-                .id(1L)
-                .user(createUser(userId))
-                .cartStatus(CartStatus.ACTIVE)
-                .totalAmount(BigDecimal.valueOf(100))
-                .build();
-    }
-
-    private CartItem createCartItem(Cart cart, Product product, int quantity) {
-        return CartItem.builder()
-                .id(1L)
-                .cart(cart)
-                .product(product)
-                .quantity(quantity)
-                .unitPrice(product.getPrice())
-                .subPrice(product.getPrice().multiply(BigDecimal.valueOf(quantity)))
-                .build();
     }
 }

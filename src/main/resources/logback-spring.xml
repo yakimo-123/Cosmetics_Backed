@@ -2,8 +2,8 @@
 <configuration scan="true" scanPeriod="10 seconds">
 
     <!-- Cấu hình thư mục và tên app -->
-    <property name="LOG_PATH" value="logs" />
-    <property name="APP_NAME" value="myapp" />
+    <property name="LOG_PATH" value="logs"/>
+    <property name="APP_NAME" value="myapp"/>
     <property name="LOG_PATTERN"
               value="%d{yyyy-MM-dd HH:mm:ss.SSS} [traceId=%X{traceId}] [user=%X{username}] [%thread] %-5level %logger{36} - %msg%n"/>
 
@@ -48,15 +48,15 @@
 
     <!-- Ghi log mặc định -->
     <root level="INFO">
-        <appender-ref ref="Console" />
-        <appender-ref ref="InfoFile" />
-        <appender-ref ref="ErrorFile" />
+        <appender-ref ref="Console"/>
+        <appender-ref ref="InfoFile"/>
+        <appender-ref ref="ErrorFile"/>
     </root>
 
     <!-- Log riêng cho package app của bạn -->
     <logger name="org.cosmetic.com" level="DEBUG" additivity="false">
-        <appender-ref ref="Console" />
-        <appender-ref ref="InfoFile" />
+        <appender-ref ref="Console"/>
+        <appender-ref ref="InfoFile"/>
     </logger>
 
 </configuration>

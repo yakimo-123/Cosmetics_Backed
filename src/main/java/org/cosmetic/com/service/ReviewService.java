@@ -8,8 +8,12 @@ import java.util.List;
 
 public interface ReviewService {
     Review createReview(ReviewRequestDto review);
+
     List<Review> getApprovedReviewsByProduct(String productId);
+
     Review updateReviewStatus(String reviewId, ReviewStatus status);
+
     List<Review> getReviewsByProduct(String productId);
-    Review replyToReview(String reviewId, String replyContent,String userNameAdmin);
+
+    Review replyToReview(String reviewId, String replyContent, String userNameAdmin);
 }

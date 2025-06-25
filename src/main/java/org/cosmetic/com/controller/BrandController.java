@@ -1,16 +1,15 @@
 package org.cosmetic.com.controller;
 
-    import lombok.RequiredArgsConstructor;
-    import org.cosmetic.com.dto.request.BrandRequestDto;
-    import org.cosmetic.com.dto.response.BrandResponseDto;
-    import org.cosmetic.com.dto.response.ApiResponse;
-    import org.cosmetic.com.mapper.BrandMapper;
-    import org.cosmetic.com.model.Brand;
-    import org.cosmetic.com.service.BrandService;
-    import org.springframework.http.ResponseEntity;
-    import org.springframework.security.access.prepost.PreAuthorize;
-    import org.springframework.web.bind.annotation.*;
-    import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.cosmetic.com.dto.request.BrandRequestDto;
+import org.cosmetic.com.dto.response.ApiResponse;
+import org.cosmetic.com.dto.response.BrandResponseDto;
+import org.cosmetic.com.service.BrandService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/brands")

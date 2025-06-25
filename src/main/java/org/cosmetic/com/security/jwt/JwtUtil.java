@@ -106,7 +106,6 @@ public class JwtUtil {
     }
 
 
-
     public void logout(String token) {
         // In a stateless JWT implementation, logout is typically handled by client-side
         // logic (e.g., removing the token from local storage).

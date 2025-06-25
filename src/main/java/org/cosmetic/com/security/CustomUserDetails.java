@@ -14,7 +14,7 @@ public class CustomUserDetails implements UserDetails {
     private final String username;
     private final Role role;
 
-    public CustomUserDetails(String username,Role role) {
+    public CustomUserDetails(String username, Role role) {
         this.username = username;
         this.role = role;
     }
@@ -30,17 +30,27 @@ public class CustomUserDetails implements UserDetails {
     }
 
     @Override
-    public String getUsername() { return username; }
+    public String getUsername() {
+        return username;
+    }
 
     @Override
-    public boolean isAccountNonExpired() { return true; }
+    public boolean isAccountNonExpired() {
+        return true;
+    }
 
     @Override
-    public boolean isAccountNonLocked() { return true; }
+    public boolean isAccountNonLocked() {
+        return true;
+    }
 
     @Override
-    public boolean isCredentialsNonExpired() { return true; }
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
 
     @Override
-    public boolean isEnabled() { return true; }
+    public boolean isEnabled() {
+        return true;
+    }
 }

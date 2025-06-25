@@ -5,7 +5,8 @@ import org.cosmetic.com.dto.response.OrderDetailResponseDto;
 import org.cosmetic.com.dto.response.OrderResponseDto;
 import org.cosmetic.com.model.Order;
 import org.cosmetic.com.model.OrderDetail;
-import org.mapstruct.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -35,6 +36,7 @@ public interface OrderMapper {
     default LocalDateTime map(Instant instant) {
         return instant != null ? LocalDateTime.ofInstant(instant, ZoneId.systemDefault()) : null;
     }
+
     List<OrderDetailResponseDto> toDto(List<OrderDetail> orderDetails);
 
 }

@@ -11,6 +11,7 @@ import org.cosmetic.com.repository.CartRepository;
 import org.cosmetic.com.repository.UserRepository;
 import org.cosmetic.com.service.CartService;
 import org.springframework.stereotype.Service;
+
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -40,14 +41,14 @@ public class CartServiceImpl implements CartService {
     @Override
     public Cart getOrCreateCart(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        Cart existingCart = cartRepository.findByUser_IdAndCartStatus(userId,CartStatus.ACTIVE).orElse(null);
+        Cart existingCart = cartRepository.findByUser_IdAndCartStatus(userId, CartStatus.ACTIVE).orElse(null);
         if (existingCart == null) {
             existingCart = Cart.builder()
                     .cartStatus(CartStatus.ACTIVE)
                     .user(user)
                     .build();
             return cartRepository.save(existingCart);
-        }else {
+        } else {
             return existingCart;
         }
     }
@@ -77,7 +78,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Cart getActiveCart(Long userId) {
-            return cartRepository.findByUserId(userId)
-                    .orElseThrow(() -> new AppException(ErrorCode.ACTIVE_CART_NOT_FOUND));
+        return cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.ACTIVE_CART_NOT_FOUND));
     }
 }

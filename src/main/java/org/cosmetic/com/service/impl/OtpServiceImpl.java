@@ -14,9 +14,8 @@ import java.time.Duration;
 @AllArgsConstructor
 public class OtpServiceImpl implements OtpService {
 
-    private final RedisTemplate<String, String> redisTemplate;
-
     private static final Duration OTP_EXPIRATION = Duration.ofMinutes(5);
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Override
     public void saveOtp(String otp, String email) {

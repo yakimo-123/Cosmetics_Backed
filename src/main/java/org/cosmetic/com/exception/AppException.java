@@ -3,7 +3,7 @@ package org.cosmetic.com.exception;
 import lombok.Getter;
 
 @Getter
-public class AppException extends RuntimeException{
+public class AppException extends RuntimeException {
     private final ErrorCode errorCode;
 
     public AppException(ErrorCode errorCode) {
@@ -15,6 +15,7 @@ public class AppException extends RuntimeException{
         super(customMessage);
         this.errorCode = errorCode;
     }
+
     public AppException(ErrorCode errorCode, String message, Throwable cause) {
         super(message, cause);
         this.errorCode = errorCode;

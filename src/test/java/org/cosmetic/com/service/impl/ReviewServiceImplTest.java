@@ -38,6 +38,15 @@ class ReviewServiceImplTest {
     @InjectMocks
     private ReviewServiceImpl reviewService;
 
+    private Review createReview(String id, String content) {
+        Review review = new Review();
+        review.setId(id);
+        review.setComment(content);
+        review.setCreatedAt(Instant.now());
+        review.setReviewStatus(ReviewStatus.PENDING);
+        return review;
+    }
+
     @Nested
     @DisplayName("Create Review Tests")
     class CreateReviewTests {
@@ -72,11 +81,11 @@ class ReviewServiceImplTest {
             // Given
             String productId = "1";
             List<Review> expectedReviews = Arrays.asList(
-                createReview("1", "Review 1"),
-                createReview("2", "Review 2")
+                    createReview("1", "Review 1"),
+                    createReview("2", "Review 2")
             );
             when(reviewRepository.findByProductIdAndReviewStatus(productId, ReviewStatus.APPROVED))
-                .thenReturn(expectedReviews);
+                    .thenReturn(expectedReviews);
 
             // When
             List<Review> actualReviews = reviewService.getApprovedReviewsByProduct(productId);
@@ -92,7 +101,7 @@ class ReviewServiceImplTest {
             // Given
             String productId = "1";
             when(reviewRepository.findByProductIdAndReviewStatus(productId, ReviewStatus.APPROVED))
-                .thenReturn(Collections.emptyList());
+                    .thenReturn(Collections.emptyList());
 
             // When
             List<Review> reviews = reviewService.getApprovedReviewsByProduct(productId);
@@ -135,7 +144,7 @@ class ReviewServiceImplTest {
 
             // When & Then
             AppException exception = assertThrows(AppException.class,
-                () -> reviewService.updateReviewStatus(reviewId, ReviewStatus.APPROVED));
+                    () -> reviewService.updateReviewStatus(reviewId, ReviewStatus.APPROVED));
             assertEquals(ErrorCode.REVIEW_NOT_FOUND, exception.getErrorCode());
             verify(reviewRepository).findById(reviewId);
             verify(reviewRepository, never()).save(any());
@@ -152,8 +161,8 @@ class ReviewServiceImplTest {
             // Given
             String productId = "1";
             List<Review> expectedReviews = Arrays.asList(
-                createReview("1", "Review 1"),
-                createReview("2", "Review 2")
+                    createReview("1", "Review 1"),
+                    createReview("2", "Review 2")
             );
             when(reviewRepository.findByProductId(productId)).thenReturn(expectedReviews);
 
@@ -220,19 +229,10 @@ class ReviewServiceImplTest {
 
             // When & Then
             AppException exception = assertThrows(AppException.class,
-                () -> reviewService.replyToReview(reviewId, "New reply", "admin"));
+                    () -> reviewService.replyToReview(reviewId, "New reply", "admin"));
             assertEquals(ErrorCode.REVIEW_ALREADY_REPLIED, exception.getErrorCode());
             verify(reviewRepository).findById(reviewId);
             verify(reviewRepository, never()).save(any());
         }
-    }
-
-    private Review createReview(String id, String content) {
-        Review review = new Review();
-        review.setId(id);
-        review.setComment(content);
-        review.setCreatedAt(Instant.now());
-        review.setReviewStatus(ReviewStatus.PENDING);
-        return review;
     }
 }
