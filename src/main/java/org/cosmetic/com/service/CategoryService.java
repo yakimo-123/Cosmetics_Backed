@@ -1,20 +1,13 @@
 package org.cosmetic.com.service;
 
 import org.cosmetic.com.dto.request.CategoryRequestDto;
-import org.cosmetic.com.model.Category;
-
+import org.cosmetic.com.dto.response.CategoryResponseDto;
 import java.util.List;
-import java.util.Optional;
 
 public interface CategoryService {
-    List<Category> findAll();
-
-    Optional<Category> findById(Long id);
-
-    Category save(CategoryRequestDto requestDto);
-
+    List<CategoryResponseDto> findAll();
+    CategoryResponseDto findById(Long id);
+    CategoryResponseDto save(CategoryRequestDto requestDto);
+    CategoryResponseDto update(Long id, CategoryRequestDto dto);
     void deleteById(Long id);
-
-    Category update(Long id,CategoryRequestDto requestDto);
-
 }

@@ -4,8 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.cosmetic.com.dto.request.CategoryRequestDto;
 import org.cosmetic.com.dto.response.CategoryResponseDto;
 import org.cosmetic.com.dto.response.ApiResponse;
-import org.cosmetic.com.mapper.CategoryMapper;
-import org.cosmetic.com.model.Category;
 import org.cosmetic.com.service.CategoryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,64 +15,52 @@ import java.util.List;
 public class CategoryController {
 
     private final CategoryService categoryService;
-    private final CategoryMapper categoryMapper;
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<CategoryResponseDto>>> getAll() {
-        List<Category> categories = categoryService.findAll();
-        List<CategoryResponseDto> response = categories.stream()
-                .map(categoryMapper::toResponseDto)
-                .toList();
+        List<CategoryResponseDto> categories = categoryService.findAll();
         return ResponseEntity.ok(
-            ApiResponse.<List<CategoryResponseDto>>builder()
-                .status(true)
-                .message("Fetched all categories")
-                .data(response)
-                .build()
+                ApiResponse.<List<CategoryResponseDto>>builder()
+                        .status(true)
+                        .message("Fetched all categories")
+                        .data(categories)
+                        .build()
         );
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<CategoryResponseDto>> getById(@PathVariable Long id) {
-        return categoryService.findById(id)
-                .map(categoryMapper::toResponseDto)
-                .map(dto -> ResponseEntity.ok(
-                    ApiResponse.<CategoryResponseDto>builder()
+        CategoryResponseDto dto = categoryService.findById(id);
+        return ResponseEntity.ok(
+                ApiResponse.<CategoryResponseDto>builder()
                         .status(true)
                         .message("Category found")
                         .data(dto)
                         .build()
-                ))
-                .orElse(ResponseEntity.status(404).body(
-                    ApiResponse.<CategoryResponseDto>builder()
-                        .status(false)
-                        .message("Category not found")
-                        .data(null)
-                        .build()
-                ));
+        );
     }
 
     @PostMapping
     public ResponseEntity<ApiResponse<CategoryResponseDto>> create(@RequestBody CategoryRequestDto dto) {
-        Category category = categoryService.save(dto);
+        CategoryResponseDto created = categoryService.save(dto);
         return ResponseEntity.status(201).body(
-            ApiResponse.<CategoryResponseDto>builder()
-                .status(true)
-                .message("Category created")
-                .data(categoryMapper.toResponseDto(category))
-                .build()
+                ApiResponse.<CategoryResponseDto>builder()
+                        .status(true)
+                        .message("Category created")
+                        .data(created)
+                        .build()
         );
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<CategoryResponseDto>> update(@PathVariable Long id, @RequestBody CategoryRequestDto dto) {
-        Category updated = categoryService.update(id, dto);
+        CategoryResponseDto updated = categoryService.update(id, dto);
         return ResponseEntity.ok(
-            ApiResponse.<CategoryResponseDto>builder()
-                .status(true)
-                .message("Category updated")
-                .data(categoryMapper.toResponseDto(updated))
-                .build()
+                ApiResponse.<CategoryResponseDto>builder()
+                        .status(true)
+                        .message("Category updated")
+                        .data(updated)
+                        .build()
         );
     }
 
@@ -82,11 +68,11 @@ public class CategoryController {
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         categoryService.deleteById(id);
         return ResponseEntity.ok(
-            ApiResponse.<Void>builder()
-                .status(true)
-                .message("Category deleted")
-                .data(null)
-                .build()
+                ApiResponse.<Void>builder()
+                        .status(true)
+                        .message("Category deleted")
+                        .data(null)
+                        .build()
         );
     }
 }

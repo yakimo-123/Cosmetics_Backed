@@ -2,6 +2,7 @@ package org.cosmetic.com.service.impl;
 
 import lombok.AllArgsConstructor;
 import org.cosmetic.com.dto.request.CategoryRequestDto;
+import org.cosmetic.com.dto.response.CategoryResponseDto;
 import org.cosmetic.com.exception.AppException;
 import org.cosmetic.com.exception.ErrorCode;
 import org.cosmetic.com.mapper.CategoryMapper;
@@ -25,21 +26,26 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Cacheable(value = "categories")
-    public List<Category> findAll() {
-        return categoryRepository.findAll();
+    public List<CategoryResponseDto> findAll() {
+        return categoryRepository.findAll()
+                .stream()
+                .map(categoryMapper::toResponseDto)
+                .toList();
     }
 
     @Override
     @Cacheable(value = "category", key = "#id")
-    public Optional<Category> findById(Long id) {
-        return categoryRepository.findById(id);
+    public CategoryResponseDto findById(Long id) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
+        return categoryMapper.toResponseDto(category);
     }
 
     @Override
     @CacheEvict(value = {"categories", "category"}, allEntries = true)
-    public Category save(CategoryRequestDto requestDto) {
+    public CategoryResponseDto save(CategoryRequestDto requestDto) {
         Category category = categoryMapper.toEntity(requestDto);
-        return categoryRepository.save(category);
+        return categoryMapper.toResponseDto(categoryRepository.save(category));
     }
 
     @Override
@@ -54,11 +60,12 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @CacheEvict(value = {"categories"}, allEntries = true)
     @CachePut(value = "category", key = "#id")
-    public Category update(Long id, CategoryRequestDto dto) {
+    public CategoryResponseDto update(Long id, CategoryRequestDto dto) {
         Category existing = categoryRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
 
         existing.setCategoryName(dto.getCategoryName());
-        return categoryRepository.save(existing);
+        return categoryMapper.toResponseDto(categoryRepository.save(existing));
     }
 }
+

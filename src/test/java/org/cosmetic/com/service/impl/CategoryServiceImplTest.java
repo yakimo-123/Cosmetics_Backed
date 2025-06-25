@@ -1,6 +1,7 @@
 package org.cosmetic.com.service.impl;
 
 import org.cosmetic.com.dto.request.CategoryRequestDto;
+import org.cosmetic.com.dto.response.CategoryResponseDto;
 import org.cosmetic.com.exception.AppException;
 import org.cosmetic.com.exception.ErrorCode;
 import org.cosmetic.com.mapper.CategoryMapper;
@@ -42,21 +43,25 @@ class CategoryServiceImplTest {
 
         @Test
         @DisplayName("Should return all categories")
-        void shouldReturnAllCategories() {
-            // Given
+        void shouldReturnAllCategoriesAsDto() {
             List<Category> categories = Arrays.asList(
-                    createCategory(1L, "Category 1"),
-                    createCategory(2L, "Category 2")
+                    Category.builder().id(1L).categoryName("C1").build(),
+                    Category.builder().id(2L).categoryName("C2").build()
             );
             when(categoryRepository.findAll()).thenReturn(categories);
+            when(categoryMapper.toResponseDto(any())).thenAnswer(invocation -> {
+                Category c = invocation.getArgument(0);
+                return CategoryResponseDto.builder()
+                        .id(c.getId())
+                        .categoryName(c.getCategoryName())
+                        .build();
+            });
 
-            // When
-            List<Category> result = categoryService.findAll();
+            List<CategoryResponseDto> result = categoryService.findAll();
 
-            // Then
-            assertNotNull(result);
             assertEquals(2, result.size());
-            verify(categoryRepository).findAll();
+            assertEquals("C1", result.get(0).getCategoryName());
+            verify(categoryMapper, times(2)).toResponseDto(any());
         }
 
         @Test
@@ -66,7 +71,7 @@ class CategoryServiceImplTest {
             when(categoryRepository.findAll()).thenReturn(List.of());
 
             // When
-            List<Category> result = categoryService.findAll();
+            List<CategoryResponseDto> result = categoryService.findAll();
 
             // Then
             assertNotNull(result);
@@ -80,33 +85,34 @@ class CategoryServiceImplTest {
 
         @Test
         @DisplayName("Should return category when found")
-        void shouldReturnCategoryWhenFound() {
+        void shouldReturnCategoryResponseDtoWhenFound() {
             // Given
             Long categoryId = 1L;
             Category category = createCategory(categoryId, "Test Category");
             when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
+            when(categoryMapper.toResponseDto(category)).thenReturn(
+                    CategoryResponseDto.builder().id(1L).categoryName("Test Category").build()
+            );
 
             // When
-            Optional<Category> result = categoryService.findById(categoryId);
+            CategoryResponseDto result = categoryService.findById(categoryId);
 
             // Then
-            assertTrue(result.isPresent());
-            assertEquals(categoryId, result.get().getId());
-            assertEquals("Test Category", result.get().getCategoryName());
+            assertNotNull(result);
+            assertEquals(categoryId, result.getId());
+            assertEquals("Test Category", result.getCategoryName());
         }
 
         @Test
-        @DisplayName("Should return empty when category not found")
-        void shouldReturnEmptyWhenCategoryNotFound() {
+        @DisplayName("Should throw exception when category not found")
+        void shouldThrowExceptionWhenCategoryNotFound() {
             // Given
             Long categoryId = 1L;
             when(categoryRepository.findById(categoryId)).thenReturn(Optional.empty());
 
-            // When
-            Optional<Category> result = categoryService.findById(categoryId);
-
-            // Then
-            assertFalse(result.isPresent());
+            // When & Then
+            AppException ex = assertThrows(AppException.class, () -> categoryService.findById(categoryId));
+            assertEquals(ErrorCode.CATEGORY_NOT_FOUND, ex.getErrorCode());
         }
     }
 
@@ -116,22 +122,31 @@ class CategoryServiceImplTest {
 
         @Test
         @DisplayName("Should successfully save new category")
-        void shouldSaveNewCategory() {
+        void shouldSaveNewCategoryResponseDto() {
             // Given
             CategoryRequestDto requestDto = new CategoryRequestDto();
             requestDto.setCategoryName("New Category");
             
             Category category = createCategory(1L, "New Category");
+            CategoryResponseDto responseDto = CategoryResponseDto.builder()
+                    .id(1L)
+                    .categoryName("New Category")
+                    .build();
+
             when(categoryMapper.toEntity(requestDto)).thenReturn(category);
             when(categoryRepository.save(any(Category.class))).thenReturn(category);
+            when(categoryMapper.toResponseDto(category)).thenReturn(responseDto);
 
             // When
-            Category savedCategory = categoryService.save(requestDto);
+            CategoryResponseDto savedCategory = categoryService.save(requestDto);
 
             // Then
             assertNotNull(savedCategory);
             assertEquals("New Category", savedCategory.getCategoryName());
-            verify(categoryRepository).save(any(Category.class));
+            assertEquals(1L, savedCategory.getId());
+
+            verify(categoryRepository).save(category);
+            verify(categoryMapper).toResponseDto(category);
         }
 
         @Test
@@ -155,27 +170,33 @@ class CategoryServiceImplTest {
     class UpdateCategoryTests {
 
         @Test
-        @DisplayName("Should successfully update existing category")
-        void shouldUpdateExistingCategory() {
+        @DisplayName("Should successfully save new category")
+        void shouldSaveNewCategoryResponseDto() {
             // Given
-            Long categoryId = 1L;
             CategoryRequestDto requestDto = new CategoryRequestDto();
-            requestDto.setCategoryName("Updated Category");
+            requestDto.setCategoryName("New Category");
 
-            Category existingCategory = createCategory(categoryId, "Old Category");
-            Category updatedCategory = createCategory(categoryId, "Updated Category");
+            Category category = createCategory(1L, "New Category");
+            CategoryResponseDto responseDto = CategoryResponseDto.builder()
+                    .id(1L)
+                    .categoryName("New Category")
+                    .build();
 
-            when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(existingCategory));
-            when(categoryRepository.save(any(Category.class))).thenReturn(updatedCategory);
+            when(categoryMapper.toEntity(requestDto)).thenReturn(category);
+            when(categoryRepository.save(category)).thenReturn(category);
+            when(categoryMapper.toResponseDto(category)).thenReturn(responseDto);
 
             // When
-            Category result = categoryService.update(categoryId, requestDto);
+            CategoryResponseDto savedCategory = categoryService.save(requestDto);
 
             // Then
-            assertNotNull(result);
-            assertEquals("Updated Category", result.getCategoryName());
-            verify(categoryRepository).save(any(Category.class));
+            assertNotNull(savedCategory);
+            assertEquals("New Category", savedCategory.getCategoryName());
+            assertEquals(1L, savedCategory.getId());
+            verify(categoryRepository).save(category);
+            verify(categoryMapper).toResponseDto(category);
         }
+
 
         @Test
         @DisplayName("Should throw exception when updating non-existent category")
@@ -237,7 +258,7 @@ class CategoryServiceImplTest {
             when(categoryRepository.findAll()).thenReturn(categories);
 
             // When
-            List<Category> result = categoryService.findAll();
+            List<CategoryResponseDto> result = categoryService.findAll();
 
             // Then
             assertNotNull(result);
@@ -252,7 +273,7 @@ class CategoryServiceImplTest {
             when(categoryRepository.findAll()).thenReturn(List.of());
 
             // When
-            List<Category> result = categoryService.findAll();
+            List<CategoryResponseDto> result = categoryService.findAll();
 
             // Then
             assertNotNull(result);
