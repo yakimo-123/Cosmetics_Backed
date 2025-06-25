@@ -1,5 +1,6 @@
 package org.cosmetic.com.config;
 
+import lombok.RequiredArgsConstructor;
 import org.cosmetic.com.security.AuthEntryPointJwt;
 import org.cosmetic.com.security.CustomAccessDeniedHandler;
 import org.cosmetic.com.security.jwt.AuthTokenFilter;
@@ -23,6 +24,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final AuthEntryPointJwt authEntryPointJwt;
@@ -66,12 +68,6 @@ public class SecurityConfig {
             "/swagger-ui.html",
     };
 
-    public SecurityConfig(AuthEntryPointJwt authEntryPointJwt, AuthTokenFilter authTokenFilter, CustomOAuth2SuccessHandler customOAuth2SuccessHandler, CustomAccessDeniedHandler customAccessDeniedHandler) {
-        this.authEntryPointJwt = authEntryPointJwt;
-        this.authTokenFilter = authTokenFilter;
-        this.customOAuth2SuccessHandler = customOAuth2SuccessHandler;
-        this.customAccessDeniedHandler = customAccessDeniedHandler;
-    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {

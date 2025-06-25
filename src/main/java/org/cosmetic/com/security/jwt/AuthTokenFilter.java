@@ -19,6 +19,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.util.PathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
+
 import java.io.IOException;
 import java.util.UUID;
 
@@ -37,29 +38,35 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         // Skip filtering for whitelisted URLs
         String requestURI = request.getRequestURI();
+        MDC.put("traceId", UUID.randomUUID().toString());
         for (String pattern : WHITE_LIST_URL) {
             if (pathMatcher.match(pattern, requestURI)) {
-                filterChain.doFilter(request, response);
+                try {
+                    MDC.put("username", "anonymous");
+                    log.info("➡️ Skipping authentication for whitelisted URL: {}", requestURI);
+                    filterChain.doFilter(request, response);
+                } finally {
+                    MDC.clear();
+                }
                 return;
             }
         }
         try {
-            MDC.put("traceId", UUID.randomUUID().toString());
-
             String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
             String token = jwtUtil.getTokenFromHeader(authHeader);
 
             if (token != null && jwtUtil.validateToken(token)) {
                 String username = jwtUtil.getUsernameFromToken(token);
                 String role = jwtUtil.getRoleFromToken(token);
-                UserDetails userDetails = new CustomUserDetails(username, Role.valueOf(role));
-                if (username != null) {
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities());
+                if (username != null && role != null) {
+                    Role roleEnum = Role.valueOf(role);
+                    UserDetails userDetails = new CustomUserDetails(username, roleEnum);
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                     MDC.put("username", username);
                 }
-            }else{
+            } else {
                 MDC.put("username", "anonymous");
             }
         } catch (AppException ex) {
@@ -71,7 +78,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         } catch (Exception e) {
             log.error("❌ Token parsing failed", e);
             throw new AppException(ErrorCode.JWT_MALFORMED, "Token parsing failed", e);
-        }finally {
+        } finally {
             filterChain.doFilter(request, response);
             MDC.clear();
         }

@@ -54,7 +54,7 @@
     </root>
 
     <!-- Log riêng cho package app của bạn -->
-    <logger name="com.yourcompany" level="DEBUG" additivity="false">
+    <logger name="org.cosmetic.com" level="DEBUG" additivity="false">
         <appender-ref ref="Console" />
         <appender-ref ref="InfoFile" />
     </logger>
