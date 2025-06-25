@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "cart_item")
 public class CartItem {
 
     @Id

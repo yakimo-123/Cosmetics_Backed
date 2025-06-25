@@ -5,12 +5,12 @@ import lombok.*;
 import org.cosmetic.com.enums.ImageType;
 
 @Entity
-@Table(name = "image_urls")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
+@Table(name = "image_urls")
 public class ImageUrl {
     @Id
     private Long id;

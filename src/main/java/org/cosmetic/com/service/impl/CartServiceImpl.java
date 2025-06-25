@@ -54,7 +54,8 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public void clearCart(Long userId) {
-        Cart cart = getOrCreateCart(userId);
+        Cart cart = cartRepository.findByUser_IdAndCartStatus(userId, CartStatus.ACTIVE)
+                .orElseThrow(() -> new AppException(ErrorCode.CART_NOT_FOUND));
         cart.getCartItems().clear();
         cartRepository.save(cart);
     }

@@ -12,6 +12,7 @@ import java.time.Instant;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "inventory")
 public class Inventory {
 
     @Id

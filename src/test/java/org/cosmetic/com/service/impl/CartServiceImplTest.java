@@ -4,6 +4,7 @@ import org.cosmetic.com.enums.CartStatus;
 import org.cosmetic.com.exception.AppException;
 import org.cosmetic.com.model.Cart;
 import org.cosmetic.com.model.CartItem;
+import org.cosmetic.com.model.User;
 import org.cosmetic.com.repository.CartRepository;
 import org.cosmetic.com.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,8 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,11 +27,12 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class CartServiceImplTest {
 
-    @MockitoBean
+    @Mock
     private CartRepository cartRepository;
 
-    @MockitoBean
+    @Mock
     private UserRepository userRepository;
+
 
     private CartServiceImpl cartService;
 
@@ -102,32 +102,22 @@ class CartServiceImplTest {
     class GetOrCreateCartTests {
 
         @Test
-        @DisplayName("Should return existing cart for user")
-        void shouldReturnExistingCartForUser() {
+        @DisplayName("Should create a new Cart if none exists")
+        void shouldCreateNewCartIfNoneExists() {
             // Given
             Long userId = 1L;
-            Cart existingCart = new Cart();
-            existingCart.setCartStatus(CartStatus.ACTIVE);
+            User user = new User();
+            user.setId(userId);  // Giả sử userId là 1L
 
-            when(cartRepository.findByUser_IdAndCartStatus(userId, CartStatus.ACTIVE))
-                    .thenReturn(Optional.of(existingCart));
+            // Giả lập rằng không có Cart ACTIVE cho user
+            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            when(cartRepository.findByUser_IdAndCartStatus(userId, CartStatus.ACTIVE)).thenReturn(Optional.empty());
 
-            // When
-            Cart result = cartService.getOrCreateCart(userId);
-
-            // Then
-            assertNotNull(result);
-            verify(cartRepository, never()).save(any(Cart.class));
-        }
-
-        @Test
-        @DisplayName("Should create new cart for user when not exists")
-        void shouldCreateNewCartForUser() {
-            // Given
-            Long userId = 1L;
-            when(cartRepository.findByUser_IdAndCartStatus(userId, CartStatus.ACTIVE))
-                    .thenReturn(Optional.empty());
-            when(cartRepository.save(any(Cart.class))).thenAnswer(i -> i.getArguments()[0]);
+            // Giả lập lưu Cart mới
+            Cart newCart = new Cart();
+            newCart.setCartStatus(CartStatus.ACTIVE);
+            newCart.setUser(user);
+            when(cartRepository.save(any(Cart.class))).thenReturn(newCart);
 
             // When
             Cart result = cartService.getOrCreateCart(userId);
@@ -135,9 +125,33 @@ class CartServiceImplTest {
             // Then
             assertNotNull(result);
             assertEquals(CartStatus.ACTIVE, result.getCartStatus());
-            assertNotNull(result.getUser());
             assertEquals(userId, result.getUser().getId());
-            verify(cartRepository).save(any(Cart.class));
+            verify(cartRepository).save(any(Cart.class)); // Kiểm tra xem cartRepository.save đã được gọi
+        }
+
+        @Test
+        @DisplayName("Should return existing Cart if it already exists")
+        void shouldReturnExistingCartIfItExists() {
+            // Given
+            Long userId = 1L;
+            User user = new User();
+            user.setId(userId);
+
+            // Giả lập rằng Cart ACTIVE đã tồn tại cho user
+            Cart existingCart = new Cart();
+            existingCart.setCartStatus(CartStatus.ACTIVE);
+            existingCart.setUser(user);
+
+            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            when(cartRepository.findByUser_IdAndCartStatus(userId, CartStatus.ACTIVE)).thenReturn(Optional.of(existingCart));
+
+            // When
+            Cart result = cartService.getOrCreateCart(userId);
+
+            // Then
+            assertNotNull(result);
+            assertEquals(existingCart, result);  // Kiểm tra xem Cart trả về có giống với Cart đã tồn tại không
+            verify(cartRepository, never()).save(any(Cart.class)); // Kiểm tra rằng phương thức save không được gọi
         }
 
 
@@ -150,22 +164,25 @@ class CartServiceImplTest {
         @Test
         @DisplayName("Should clear existing cart items")
         void shouldClearExistingCartItems() {
-            // Given
+            // Given: Tạo một cart với một item trong giỏ hàng
             Long userId = 1L;
             Cart cart = new Cart();
             cart.setCartItems(new ArrayList<>());
-            cart.getCartItems().add(new CartItem());
+            cart.getCartItems().add(new CartItem());  // Thêm một item vào giỏ hàng
 
+            // Giả lập trả về giỏ hàng có trạng thái ACTIVE từ repository
             when(cartRepository.findByUser_IdAndCartStatus(userId, CartStatus.ACTIVE))
                     .thenReturn(Optional.of(cart));
+
+            // Giả lập phương thức save để kiểm tra sau khi xóa item
             when(cartRepository.save(any(Cart.class))).thenReturn(cart);
 
-            // When
+            // When: Gọi phương thức clearCart để xóa các item trong giỏ hàng
             cartService.clearCart(userId);
 
-            // Then
-            assertTrue(cart.getCartItems().isEmpty());
-            verify(cartRepository).save(cart);
+            // Then: Kiểm tra xem cartItems có bị xóa không
+            assertTrue(cart.getCartItems().isEmpty(), "Cart items should be cleared");
+            verify(cartRepository).save(cart);  // Kiểm tra xem phương thức save đã được gọi
         }
     }
 

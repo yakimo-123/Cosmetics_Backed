@@ -20,7 +20,7 @@ public class GlobalExceptionHandler {
     // --- Generic Handler ---
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Object>> handleAllExceptions(Exception ex) {
-        log.error("Unhandled exception: {}", ex.getMessage(), ex);
+        log.error("Unhandled exception: {}",ex.getMessage() ,ex);
         return buildResponse("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -32,6 +32,7 @@ public class GlobalExceptionHandler {
             UnsupportedOperationException.class
     })
     public ResponseEntity<ApiResponse<Object>> handleBadRequestExceptions(RuntimeException ex) {
+        log.warn("⚠️ Bad request exception: {}", ex.getMessage(), ex);
         return buildResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
@@ -43,11 +44,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(IOException.class)
     public ResponseEntity<ApiResponse<Object>> handleIOException(IOException ex) {
+        log.error("📁 IOException: {}", ex.getMessage(), ex);
         return buildResponse("File processing error: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiResponse<Object>> handleAccessDeniedException(AccessDeniedException ex) {
+        log.warn("🚫 Access Denied: {}", ex.getMessage(), ex);
         return buildResponse("Access denied: " + ex.getMessage(), HttpStatus.FORBIDDEN);
     }
 
@@ -55,6 +58,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleHttpMediaTypeNotSupported(HttpMediaTypeNotSupportedException ex) {
         String message = "Unsupported Content-Type: " + ex.getContentType() +
                 ". Supported types: " + ex.getSupportedMediaTypes();
+        log.warn("🧾 MediaType Not Supported: {}", message, ex);
         return buildResponse(message, HttpStatus.UNSUPPORTED_MEDIA_TYPE);
     }
 
@@ -72,6 +76,7 @@ public class GlobalExceptionHandler {
         String errors = ex.getBindingResult().getFieldErrors().stream()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.joining("; "));
+        log.warn("❗Validation failed: {}", errors);
         return buildResponse(errors, HttpStatus.BAD_REQUEST);
     }
 
