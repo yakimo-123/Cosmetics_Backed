@@ -78,8 +78,8 @@ public class ProductController {
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<ProductResponseDto>> updateProduct(
             @PathVariable Long id,
-            @Valid ProductRequestDto productRequestDto,
-            @RequestParam(value = "images", required = false) List<MultipartFile> images
+            @RequestPart("product")@Valid ProductRequestDto productRequestDto,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images
     ) throws IOException {
         Product updatedProduct = productService.update(id, productRequestDto, images);
         ApiResponse<ProductResponseDto> response = ApiResponse.<ProductResponseDto>builder()

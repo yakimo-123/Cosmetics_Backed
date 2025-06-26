@@ -36,7 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")          //  ← application-test.properties → H2 in MySQL-mode
 @Transactional                   //  rollback after each test
 @DisplayName("CartController integration tests")
-class CartControllerIntegrationTest {
+class  CartControllerIntegrationTest {
 
     @Autowired
     MockMvc mockMvc;

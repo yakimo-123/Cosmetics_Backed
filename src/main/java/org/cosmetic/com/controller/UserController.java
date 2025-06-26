@@ -24,7 +24,7 @@ public class UserController {
     private final UserService userService;
     private final UserMapper userMapper;
 
-    //    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<ApiResponse<List<UserResponseDto>>> getAllUsers() {
         List<User> users = userService.findAll();
@@ -37,7 +37,7 @@ public class UserController {
         );
     }
 
-    //    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<UserResponseDto>> getUserById(@PathVariable Long id) {
         User user = userService.findById(id);

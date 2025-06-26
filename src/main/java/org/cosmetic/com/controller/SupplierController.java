@@ -8,6 +8,7 @@ import org.cosmetic.com.mapper.SupplierMapper;
 import org.cosmetic.com.model.Supplier;
 import org.cosmetic.com.service.SupplierService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,6 +23,7 @@ public class SupplierController {
     private final SupplierMapper supplierMapper;
 
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<ApiResponse<List<SupplierResponseDto>>> getAllSuppliers() {
         List<Supplier> suppliers = supplierService.findAll();
@@ -33,6 +35,7 @@ public class SupplierController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<Supplier>> getSupplierById(@PathVariable Long id) {
         Supplier supplier = supplierService.findById(id);
@@ -44,6 +47,7 @@ public class SupplierController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ApiResponse<Supplier>> createSupplier(@RequestBody SupplierRequestDto requestDto) {
         Supplier savedSupplier = supplierService.save(requestDto);
@@ -55,6 +59,7 @@ public class SupplierController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteSupplier(@PathVariable Long id) {
         supplierService.deleteById(id);

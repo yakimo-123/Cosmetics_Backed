@@ -5,6 +5,7 @@ import org.cosmetic.com.dto.response.ApiResponse;
 import org.cosmetic.com.model.Inventory;
 import org.cosmetic.com.service.InventoryService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,6 +19,7 @@ public class InventoryController {
 
     private final InventoryService inventoryService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<ApiResponse<List<Inventory>>> getAllInventories() {
         List<Inventory> inventories = inventoryService.findAll();
@@ -49,6 +51,7 @@ public class InventoryController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ApiResponse<Inventory>> createInventory(@RequestBody Inventory inventory) {
         Inventory savedInventory = inventoryService.save(inventory);
@@ -60,6 +63,7 @@ public class InventoryController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<Inventory>> updateInventory(@PathVariable Long id, @RequestBody Inventory inventory) {
         Optional<Inventory> existing = inventoryService.findById(id);
@@ -82,6 +86,7 @@ public class InventoryController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteInventory(@PathVariable Long id) {
         inventoryService.deleteById(id);

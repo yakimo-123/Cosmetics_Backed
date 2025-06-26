@@ -40,21 +40,19 @@ public class SecurityConfig {
     // Các endpoint yêu cầu ADMIN cho POST/PUT/DELETE
     private static final String[] ADMIN_POST_ENDPOINTS = {
             "/api/brands/**",
+            "/api/products/**",
             "/api/categories/**"
     };
     private static final String[] ADMIN_PUT_ENDPOINTS = {
             "/api/brands/**",
+            "/api/products/**",
             "/api/categories/**"
     };
     private static final String[] ADMIN_DELETE_ENDPOINTS = {
             "/api/brands/**",
+            "/api/products/**",
             "/api/categories/**"
     };
-    private final AuthEntryPointJwt authEntryPointJwt;
-    private final AuthTokenFilter authTokenFilter;
-    private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
-    private final CustomAccessDeniedHandler customAccessDeniedHandler;
-    // Define the white-listed URLs that do not require authentication
     String[] WHITE_LIST_URL = {
             "/api/auth/**",
             "/api/orders/**",
@@ -62,6 +60,13 @@ public class SecurityConfig {
             "/swagger-ui/**",
             "/swagger-ui.html",
     };
+
+
+    private final AuthEntryPointJwt authEntryPointJwt;
+    private final AuthTokenFilter authTokenFilter;
+    private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
+    // Define the white-listed URLs that do not require authentication
 
 
     @Bean
